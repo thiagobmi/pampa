@@ -1,0 +1,469 @@
+{
+  "professores": [
+    {
+      "id": "prof001",
+      "nome": "Dr. Silva",
+      "departamento": "Matemática",
+      "especialidade": "Cálculo"
+    },
+    {
+      "id": "prof002",
+      "nome": "Prof. Santos",
+      "departamento": "Computação",
+      "especialidade": "Algoritmos"
+    },
+    {
+      "id": "prof003",
+      "nome": "Dr. Oliveira",
+      "departamento": "Matemática",
+      "especialidade": "Matemática Discreta"
+    },
+    {
+      "id": "prof004",
+      "nome": "Prof. Costa",
+      "departamento": "Computação",
+      "especialidade": "Programação"
+    },
+    {
+      "id": "prof005",
+      "nome": "Dr. Ferreira",
+      "departamento": "Física",
+      "especialidade": "Física Geral"
+    },
+    {
+      "id": "prof006",
+      "nome": "Prof. Newton",
+      "departamento": "Física",
+      "especialidade": "Física I"
+    },
+    {
+      "id": "prof007",
+      "nome": "Prof. Marie",
+      "departamento": "Química",
+      "especialidade": "Química Geral"
+    },
+    {
+      "id": "prof008",
+      "nome": "Prof. Code",
+      "departamento": "Computação",
+      "especialidade": "Base de Dados"
+    },
+    {
+      "id": "prof009",
+      "nome": "Prof. Network",
+      "departamento": "Computação",
+      "especialidade": "Redes"
+    },
+    {
+      "id": "prof010",
+      "nome": "Prof. Pereira",
+      "departamento": "Matemática",
+      "especialidade": "Estatística"
+    }
+  ],
+  "semestres": [
+    {
+      "id": "sem001",
+      "codigo": "2024.1",
+      "nome": "Primeiro Semestre 2024",
+      "dataInicio": "2024-03-01",
+      "dataFim": "2024-07-31"
+    },
+    {
+      "id": "sem002",
+      "codigo": "2024.2",
+      "nome": "Segundo Semestre 2024",
+      "dataInicio": "2024-08-01",
+      "dataFim": "2024-12-20"
+    },
+    {
+      "id": "sem003",
+      "codigo": "2023.1",
+      "nome": "Primeiro Semestre 2023",
+      "dataInicio": "2023-03-01",
+      "dataFim": "2023-07-31"
+    },
+    {
+      "id": "sem004",
+      "codigo": "2023.2",
+      "nome": "Segundo Semestre 2023",
+      "dataInicio": "2023-08-01",
+      "dataFim": "2023-12-20"
+    },
+    {
+      "id": "sem005",
+      "codigo": "2025.1",
+      "nome": "Primeiro Semestre 2025",
+      "dataInicio": "2025-03-01",
+      "dataFim": "2025-07-31"
+    }
+  ],
+  "horarios": [
+    {
+      "id": "hor001",
+      "hora": "07:30",
+      "periodo": "Manhã"
+    },
+    {
+      "id": "hor002",
+      "hora": "08:30",
+      "periodo": "Manhã"
+    },
+    {
+      "id": "hor003",
+      "hora": "09:30",
+      "periodo": "Manhã"
+    },
+    {
+      "id": "hor004",
+      "hora": "10:30",
+      "periodo": "Manhã"
+    },
+    {
+      "id": "hor005",
+      "hora": "11:30",
+      "periodo": "Manhã"
+    },
+    {
+      "id": "hor006",
+      "hora": "12:30",
+      "periodo": "Tarde"
+    },
+    {
+      "id": "hor007",
+      "hora": "13:30",
+      "periodo": "Tarde"
+    },
+    {
+      "id": "hor008",
+      "hora": "14:30",
+      "periodo": "Tarde"
+    },
+    {
+      "id": "hor009",
+      "hora": "15:30",
+      "periodo": "Tarde"
+    },
+    {
+      "id": "hor010",
+      "hora": "16:30",
+      "periodo": "Tarde"
+    },
+    {
+      "id": "hor011",
+      "hora": "17:30",
+      "periodo": "Tarde"
+    },
+    {
+      "id": "hor012",
+      "hora": "18:30",
+      "periodo": "Noite"
+    },
+    {
+      "id": "hor013",
+      "hora": "19:30",
+      "periodo": "Noite"
+    },
+    {
+      "id": "hor014",
+      "hora": "20:30",
+      "periodo": "Noite"
+    },
+    {
+      "id": "hor015",
+      "hora": "21:30",
+      "periodo": "Noite"
+    },
+    {
+      "id": "hor016",
+      "hora": "22:30",
+      "periodo": "Noite"
+    }
+  ],
+  "salas": [
+    {
+      "id": "sala001",
+      "codigo": "A101",
+      "nome": "Sala A101",
+      "tipo": "Sala de Aula",
+      "capacidade": 40,
+      "bloco": "A",
+      "andar": 1,
+      "recursos": ["Projetor", "Quadro Branco"]
+    },
+    {
+      "id": "sala002",
+      "codigo": "A102",
+      "nome": "Sala A102",
+      "tipo": "Sala de Aula",
+      "capacidade": 35,
+      "bloco": "A",
+      "andar": 1,
+      "recursos": ["Projetor", "Quadro Branco"]
+    },
+    {
+      "id": "sala003",
+      "codigo": "B201",
+      "nome": "Sala B201",
+      "tipo": "Sala de Aula",
+      "capacidade": 50,
+      "bloco": "B",
+      "andar": 2,
+      "recursos": ["Projetor", "Quadro Branco", "Sistema de Som"]
+    },
+    {
+      "id": "sala004",
+      "codigo": "B202",
+      "nome": "Sala B202",
+      "tipo": "Sala de Aula",
+      "capacidade": 45,
+      "bloco": "B",
+      "andar": 2,
+      "recursos": ["Projetor", "Quadro Branco"]
+    },
+    {
+      "id": "sala005",
+      "codigo": "C301",
+      "nome": "Sala C301",
+      "tipo": "Sala de Aula",
+      "capacidade": 30,
+      "bloco": "C",
+      "andar": 3,
+      "recursos": ["Projetor", "Quadro Branco"]
+    },
+    {
+      "id": "sala006",
+      "codigo": "C310",
+      "nome": "Sala C310",
+      "tipo": "Sala de Aula",
+      "capacidade": 35,
+      "bloco": "C",
+      "andar": 3,
+      "recursos": ["Projetor", "Quadro Branco"]
+    },
+    {
+      "id": "sala007",
+      "codigo": "Lab01",
+      "nome": "Laboratório de Informática 1",
+      "tipo": "Laboratório de Informática",
+      "capacidade": 25,
+      "bloco": "D",
+      "andar": 1,
+      "recursos": ["Computadores", "Projetor", "Ar Condicionado"]
+    },
+    {
+      "id": "sala008",
+      "codigo": "Lab02",
+      "nome": "Laboratório de Informática 2",
+      "tipo": "Laboratório de Informática",
+      "capacidade": 30,
+      "bloco": "D",
+      "andar": 1,
+      "recursos": ["Computadores", "Projetor", "Ar Condicionado"]
+    },
+    {
+      "id": "sala009",
+      "codigo": "LabFis01",
+      "nome": "Laboratório de Física 1",
+      "tipo": "Laboratório Prático",
+      "capacidade": 20,
+      "bloco": "F",
+      "andar": 1,
+      "recursos": ["Equipamentos de Física", "Bancadas"]
+    },
+    {
+      "id": "sala010",
+      "codigo": "LabQuim01",
+      "nome": "Laboratório de Química 1",
+      "tipo": "Laboratório Prático",
+      "capacidade": 18,
+      "bloco": "Q",
+      "andar": 2,
+      "recursos": ["Equipamentos de Química", "Bancadas", "Capela"]
+    }
+  ],
+  "dias": [
+    {
+      "id": "dia001",
+      "nome": "Segunda",
+      "nomeCompleto": "Segunda-feira",
+      "ordem": 1
+    },
+    {
+      "id": "dia002",
+      "nome": "Terça",
+      "nomeCompleto": "Terça-feira",
+      "ordem": 2
+    },
+    {
+      "id": "dia003",
+      "nome": "Quarta",
+      "nomeCompleto": "Quarta-feira",
+      "ordem": 3
+    },
+    {
+      "id": "dia004",
+      "nome": "Quinta",
+      "nomeCompleto": "Quinta-feira",
+      "ordem": 4
+    },
+    {
+      "id": "dia005",
+      "nome": "Sexta",
+      "nomeCompleto": "Sexta-feira",
+      "ordem": 5
+    }
+  ],
+  "turmas": [
+    {
+      "id": "turma001",
+      "codigo": "A",
+      "nome": "Turma A",
+      "curso": "Ciência da Computação",
+      "semestre": 1,
+      "ano": 2024
+    },
+    {
+      "id": "turma002",
+      "codigo": "B",
+      "nome": "Turma B",
+      "curso": "Ciência da Computação",
+      "semestre": 2,
+      "ano": 2024
+    },
+    {
+      "id": "turma003",
+      "codigo": "C",
+      "nome": "Turma C",
+      "curso": "Engenharia de Software",
+      "semestre": 1,
+      "ano": 2024
+    },
+    {
+      "id": "turma004",
+      "codigo": "D",
+      "nome": "Turma D",
+      "curso": "Sistemas de Informação",
+      "semestre": 1,
+      "ano": 2024
+    },
+    {
+      "id": "turma005",
+      "codigo": "MAT-A",
+      "nome": "Matemática A",
+      "curso": "Matemática",
+      "semestre": 1,
+      "ano": 2024
+    },
+    {
+      "id": "turma006",
+      "codigo": "FIS-A",
+      "nome": "Física A",
+      "curso": "Física",
+      "semestre": 1,
+      "ano": 2024
+    }
+  ],
+  "tipos": [
+    {
+      "id": "tipo001",
+      "nome": "Teórica",
+      "categoria": "Modalidade",
+      "cor": "#3B82F6"
+    },
+    {
+      "id": "tipo002",
+      "nome": "Prática",
+      "categoria": "Modalidade",
+      "cor": "#EF4444"
+    },
+    {
+      "id": "tipo003",
+      "nome": "Assíncrona",
+      "categoria": "Modalidade",
+      "cor": "#10B981"
+    }
+  ],
+  "disciplinas": [
+    {
+      "id": "disc001",
+      "codigo": "MAT001",
+      "nome": "Cálculo I",
+      "tipo": "Cálculo",
+      "cargaHoraria": 60,
+      "prerequisitos": []
+    },
+    {
+      "id": "disc002",
+      "codigo": "MAT002",
+      "nome": "Matemática Discreta",
+      "tipo": "Matemática",
+      "cargaHoraria": 60,
+      "prerequisitos": []
+    },
+    {
+      "id": "disc003",
+      "codigo": "COMP001",
+      "nome": "Algoritmos e Programação",
+      "tipo": "Programação",
+      "cargaHoraria": 80,
+      "prerequisitos": []
+    },
+    {
+      "id": "disc004",
+      "codigo": "MAT003",
+      "nome": "Estatística",
+      "tipo": "Estatística",
+      "cargaHoraria": 60,
+      "prerequisitos": ["MAT001"]
+    },
+    {
+      "id": "disc005",
+      "codigo": "COMP002",
+      "nome": "Práticas de Programação",
+      "tipo": "Laboratório",
+      "cargaHoraria": 40,
+      "prerequisitos": ["COMP001"]
+    },
+    {
+      "id": "disc006",
+      "codigo": "COMP003",
+      "nome": "Desafios de Algoritmos",
+      "tipo": "Desafios",
+      "cargaHoraria": 40,
+      "prerequisitos": ["COMP001"]
+    },
+    {
+      "id": "disc007",
+      "codigo": "FIS001",
+      "nome": "Física I",
+      "tipo": "Física",
+      "cargaHoraria": 80,
+      "prerequisitos": ["MAT001"]
+    },
+    {
+      "id": "disc008",
+      "codigo": "QUI001",
+      "nome": "Química Geral",
+      "tipo": "Química",
+      "cargaHoraria": 60,
+      "prerequisitos": []
+    },
+    {
+      "id": "disc009",
+      "codigo": "COMP004",
+      "nome": "Banco de Dados",
+      "tipo": "Programação",
+      "cargaHoraria": 60,
+      "prerequisitos": ["COMP001"]
+    },
+    {
+      "id": "disc010",
+      "codigo": "COMP005",
+      "nome": "Redes de Computadores",
+      "tipo": "Redes",
+      "cargaHoraria": 60,
+      "prerequisitos": ["COMP001"]
+    }
+  ]
+}

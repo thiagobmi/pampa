@@ -1,0 +1,503 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 142 100% 39%; /* PampaTime green */
+    --primary-foreground: 355.7 100% 97.3%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 142 100% 39%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 142 100% 39%;
+    --primary-foreground: 355.7 100% 97.3%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142 100% 39%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .class-card {
+    @apply rounded-md p-2 flex flex-col text-left text-xs;
+  }
+  
+  .class-card-calculus {
+    @apply bg-purple-100 border-l-4 border-purple-500;
+  }
+  
+  .class-card-math {
+    @apply bg-green-100 border-l-4 border-green-500;
+  }
+  
+  .class-card-algorithms {
+    @apply bg-red-100 border-l-4 border-red-500;
+  }
+  
+  .class-card-practices {
+    @apply bg-blue-100 border-l-4 border-blue-500;
+  }
+  
+  .class-card-challenges {
+    @apply bg-green-100 border-l-4 border-green-500;
+  }
+}
+
+
+.fc-timegrid-slot {
+  height: 50px !important; /* Altura fixa para todos os slots */
+}
+.fc-timegrid-slot-lane {
+  height: 50px !important;
+}
+
+.fc-timegrid-col.fc-day-today {
+  background-color: transparent !important;
+}
+
+
+/* Exemplo de estilos para personalizar o cabeçalho */
+.day-header {
+    text-transform: capitalize;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 8px 0;
+}
+
+/* Para destacar cada dia da semana em células separadas como na imagem */
+.fc-col-header-cell {
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+}
+
+/* Para ajustar a altura do cabeçalho se necessário */
+.fc-col-header {
+    height: 40px;
+}
+
+.fc-col-header-cell-cushion {
+  text-transform: capitalize;
+}
+
+.fc-day-header-custom {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Alinha itens à esquerda em vez de centro */
+  padding: 1px 5px; /* Adicionado padding horizontal para dar espaço */
+  width: 100%;
+}
+
+.fc-day-abbr {
+  font-size: 0.8em;
+  text-transform: uppercase;
+  color: #999;
+  font-weight: lighter;
+  text-align: left; /* Garante alinhamento à esquerda */
+  align-self: flex-start; /* Alinha o próprio elemento à esquerda */
+}
+
+.fc-day-name {
+  font-weight: bold;
+  text-align: left;
+  /* font-size: large; */
+  font-size: 1.3rem;
+  /* margin-top: px; */
+  width: 100%; /* Garante que ocupe toda a largura disponível */
+}
+
+/* Estilos adicionais para garantir que o cabeçalho tenha espaço suficiente */
+.fc .fc-col-header-cell-cushion {
+  padding: 5px 3px;
+  width: 100%; /* Ocupa toda a largura disponível */
+}
+
+/* Ajuste a altura do cabeçalho para acomodar as duas linhas */
+.fc .fc-col-header-cell {
+  padding: 0;
+}
+
+/* Necessário para garantir que o conteúdo do cabeçalho tenha largura total */
+.fc-col-header-cell-cushion {
+  width: 100%;
+  display: block;
+}
+
+/* Add these styles to src/index.css after the existing content */
+
+/* Improved responsive utilities */
+@media (max-width: 768px) {
+  .class-card {
+    padding: 10px !important;
+    min-height: 55px !important;
+  }
+  
+  .class-card .font-medium {
+    font-size: 0.813rem !important; /* text-sm equivalent */
+    line-height: 1.2;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Stack form fields vertically on small screens */
+  .grid.grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Better button sizing on mobile */
+  .grid.grid-cols-3 {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  .grid.grid-cols-3 > * {
+    width: 100%;
+  }
+}
+
+/* Better scrollbar styling */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Improved drag feedback */
+.class-card:active {
+  cursor: grabbing !important;
+  transform: scale(1.05) !important;
+  z-index: 1000;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+}
+
+/* Better focus states for accessibility */
+.class-card:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Loading animation for better UX */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.loading-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+}
+
+/* Improved mobile touch targets */
+@media (max-width: 768px) {
+  .class-card {
+    min-height: 60px !important;
+    touch-action: manipulation;
+  }
+  
+  /* Larger touch targets for buttons */
+  button {
+    min-height: 44px;
+  }
+  
+  /* Better spacing for mobile inputs */
+  input[type="text"] {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 12px !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .class-card {
+    border: 2px solid currentColor !important;
+  }
+  
+  .class-card:hover {
+    background: contrast-higher !important;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .class-card,
+  .transition-all,
+  .transition-shadow,
+  .transition-colors,
+  .transition-transform {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .hover\:scale-\[1\.02\]:hover {
+    transform: none !important;
+  }
+}
+
+/* Add these styles to src/index.css after the existing content */
+
+/* Improved responsive utilities */
+@media (max-width: 768px) {
+  .class-card {
+    padding: 10px !important;
+    min-height: 55px !important;
+  }
+  
+  .class-card .font-medium {
+    font-size: 0.813rem !important; /* text-sm equivalent */
+    line-height: 1.2;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Stack form fields vertically on small screens */
+  .grid.grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Better button sizing on mobile */
+  .grid.grid-cols-3 {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  .grid.grid-cols-3 > * {
+    width: 100%;
+  }
+}
+
+/* Better scrollbar styling */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Improved drag feedback */
+.class-card:active {
+  cursor: grabbing !important;
+  transform: scale(1.05) !important;
+  z-index: 1000;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+}
+
+/* Better focus states for accessibility */
+.class-card:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Loading animation for better UX */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.loading-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+}
+
+/* Improved mobile touch targets */
+@media (max-width: 768px) {
+  .class-card {
+    min-height: 60px !important;
+    touch-action: manipulation;
+  }
+  
+  /* Larger touch targets for buttons */
+  button {
+    min-height: 44px;
+  }
+  
+  /* Better spacing for mobile inputs */
+  input[type="text"] {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 12px !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .class-card {
+    border: 2px solid currentColor !important;
+  }
+  
+  .class-card:hover {
+    background: contrast-higher !important;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .class-card,
+  .transition-all,
+  .transition-shadow,
+  .transition-colors,
+  .transition-transform {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .hover\:scale-\[1\.02\]:hover {
+    transform: none !important;
+  }
+}
+
+/* ====== NEW: Resizable divider styles ====== */
+
+/* Resizable divider hover effect */
+.cursor-ns-resize:hover::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.1) 20%, rgba(59, 130, 246, 0.2) 50%, rgba(59, 130, 246, 0.1) 80%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Active dragging state */
+.cursor-ns-resize.dragging {
+  background: #bfdbfe !important; /* blue-200 */
+  border-color: #3b82f6 !important; /* blue-500 */
+}
+
+/* Smooth transitions for divider */
+.cursor-ns-resize {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  z-index: 10;
+}
+
+/* Divider visual indicators enhancement */
+.cursor-ns-resize > div {
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* Better mobile support for resizable divider */
+@media (max-width: 768px) {
+  .cursor-ns-resize {
+    height: 12px !important; /* Larger touch target on mobile */
+    min-height: 12px;
+  }
+  
+  .cursor-ns-resize > div > div {
+    height: 2px !important; /* Thicker lines on mobile */
+    width: 12px !important; /* Longer lines on mobile */
+  }
+}
+
+/* Accessibility improvements */
+.cursor-ns-resize:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  background: #dbeafe !important;
+}
+
+/* Prevent text selection during dragging globally */
+body.dragging {
+  user-select: none !important;
+  cursor: ns-resize !important;
+}
+
+body.dragging * {
+  cursor: ns-resize !important;
+}
