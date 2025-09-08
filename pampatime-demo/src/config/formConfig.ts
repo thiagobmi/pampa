@@ -1,4 +1,5 @@
-import { EntityFormConfig, FormField, BookingItem, TeacherItem, CourseItem, SubjectItem, SemesterItem } from '@/types/management';
+// src/config/formConfig.ts
+import { EntityFormConfig, FormField, BookingItem, TeacherItem, CourseItem, SubjectItem, SemesterItem, TurmaItem } from '@/types/management';
 
 export const entityFormConfigs: { [key: string]: EntityFormConfig<any> } = {
   disciplinas: {
@@ -6,7 +7,15 @@ export const entityFormConfigs: { [key: string]: EntityFormConfig<any> } = {
     fields: [
       { id: 'code', label: 'CÓDIGO', type: 'text', required: true, placeholder: 'Ex: CC01' },
       { id: 'name', label: 'NOME', type: 'text', required: true, placeholder: 'Ex: Algoritmos e Estruturas de Dados' },
-      { id: 'course', label: 'CURSO', type: 'text', required: true, placeholder: 'Ex: Ciência da Computação' },
+      { 
+        id: 'course', 
+        label: 'CURSO', 
+        type: 'select', 
+        required: true, 
+        placeholder: 'Selecione um curso',
+        // As opções serão preenchidas dinamicamente pelo componente
+        options: []
+      },
       { id: 'chTeorica', label: 'CH TEÓRICA', type: 'text', required: true, placeholder: 'Ex: 40h' },
       { id: 'chPratica', label: 'CH PRÁTICA', type: 'text', required: true, placeholder: 'Ex: 20h' },
       { id: 'tipoSalaPreferencial', label: 'TIPO DE SALA PREFERENCIAL', type: 'text', placeholder: 'Ex: Laboratório' },
@@ -43,6 +52,7 @@ export const entityFormConfigs: { [key: string]: EntityFormConfig<any> } = {
       name: '',
       capacity: 0,
       type: '',
+      code: '',
     } as Omit<BookingItem, 'id'>,
   },
   cursos: {
@@ -55,6 +65,25 @@ export const entityFormConfigs: { [key: string]: EntityFormConfig<any> } = {
       code: '',
       name: '',
     } as Omit<CourseItem, 'id'>,
+  },
+  turmas: {
+    title: 'Adicionar Turma',
+    fields: [
+      { id: 'name', label: 'NOME DA TURMA', type: 'text', required: true, placeholder: 'Ex: Turma A, 2024.1 - A' },
+      { 
+        id: 'course', 
+        label: 'CURSO', 
+        type: 'select', 
+        required: true, 
+        placeholder: 'Selecione um curso',
+        // As opções serão preenchidas dinamicamente pelo componente
+        options: []
+      },
+    ] as FormField[],
+    defaultValues: {
+      name: '',
+      course: '',
+    } as Omit<TurmaItem, 'id'>,
   },
   semestres: {
     title: 'Adicionar Semestre',

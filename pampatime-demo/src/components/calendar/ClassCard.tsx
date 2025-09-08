@@ -6,7 +6,7 @@ interface ClassCardProps {
   professor?: string;
   type: string; // Para disciplinas, será o código
   className?: string;
-  roomInfo?: string;
+  roomInfo?: string; // Usar para mostrar informação do curso
   event?: any;
 }
 
@@ -16,7 +16,7 @@ const ClassCard: React.FC<ClassCardProps> = ({
   professor,
   type, // Para disciplinas, type será o código
   className,
-  roomInfo,
+  roomInfo, // Agora representa o curso
   event
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -44,6 +44,7 @@ const ClassCard: React.FC<ClassCardProps> = ({
       semester: '', // Vazio
       class: '', // Vazio
       codigo: event?.codigo || '', // Manter código para referência
+      course: event?.course || '', // Adicionar curso
     }
   };
   
@@ -64,6 +65,11 @@ const ClassCard: React.FC<ClassCardProps> = ({
       <div className="text-xs opacity-75 font-semibold">
         Código: {type}
       </div>
+      {roomInfo && (
+        <div className="text-xs opacity-60 mt-1 italic">
+          {roomInfo}
+        </div>
+      )}
     </div>
   );
 };

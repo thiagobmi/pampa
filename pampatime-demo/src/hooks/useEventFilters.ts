@@ -2,11 +2,11 @@
 import { useState, useMemo, useCallback } from 'react';
 import { CalendarEvent } from '@/types/Event';
 
-export type FilterType = 'professor' | 'semestre' | 'sala';
+export type FilterType = 'professor' | 'turma' | 'sala';
 
 export interface FilterState {
   professor: string;
-  semestre: string;
+  turma: string;
   sala: string;
 }
 
@@ -44,7 +44,7 @@ export interface UseEventFiltersReturn {
 export const useEventFilters = (events: CalendarEvent[]): UseEventFiltersReturn => {
   const [filters, setFilters] = useState<FilterState>({
     professor: '',
-    semestre: '',
+    turma: '',
     sala: ''
   });
   const [searchTerm, setSearchTermState] = useState('');
@@ -53,12 +53,12 @@ export const useEventFilters = (events: CalendarEvent[]): UseEventFiltersReturn 
   // Memoized filter options
   const filterOptions = useMemo(() => {
     const profs = Array.from(new Set(events.map(e => e.professor).filter(Boolean))) as string[];
-    const sems = Array.from(new Set(events.map(e => e.semester).filter(Boolean))) as string[];
+    const turmas = Array.from(new Set(events.map(e => e.class).filter(Boolean))) as string[];
     const salas = Array.from(new Set(events.map(e => e.room).filter(Boolean))) as string[];
 
     return {
       professor: profs.sort(),
-      semestre: sems.sort(),
+      turma: turmas.sort(),
       sala: salas.sort(),
     };
   }, [events]);
@@ -70,14 +70,15 @@ export const useEventFilters = (events: CalendarEvent[]): UseEventFiltersReturn 
       const matchesSearch = !searchTerm || 
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.professor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.room?.toLowerCase().includes(searchTerm.toLowerCase());
+        event.room?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.class?.toLowerCase().includes(searchTerm.toLowerCase());
 
       // Individual filters
       const matchesProfessor = !filters.professor || event.professor === filters.professor;
       const matchesSala = !filters.sala || event.room === filters.sala;
-      const matchesSemestre = !filters.semestre || event.semester === filters.semestre;
+      const matchesTurma = !filters.turma || event.class === filters.turma;
 
-      return matchesSearch && matchesProfessor && matchesSala && matchesSemestre;
+      return matchesSearch && matchesProfessor && matchesSala && matchesTurma;
     });
   }, [events, searchTerm, filters]);
 
@@ -119,7 +120,7 @@ export const useEventFilters = (events: CalendarEvent[]): UseEventFiltersReturn 
   const clearAllFilters = useCallback(() => {
     setFilters({
       professor: '',
-      semestre: '',
+      turma: '',
       sala: ''
     });
     setSearchTermState('');

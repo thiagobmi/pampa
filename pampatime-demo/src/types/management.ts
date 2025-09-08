@@ -15,11 +15,17 @@ export interface BookingItem extends ManagedItem {
   name: string;
   capacity: number;
   type: string;
+  code: string;
 }
 
 export interface CourseItem extends ManagedItem {
   code: string; 
   name: string;
+}
+
+export interface TurmaItem extends ManagedItem {
+  name: string;
+  course: string;
 }
 
 export interface SubjectItem extends ManagedItem {
@@ -71,6 +77,7 @@ export interface SemesterItem extends ManagedItem {
   name: string;
   lastModified: FieldValue | Date;
 }
+
 export interface TimetableEvent {
   id: string;
   day: string;

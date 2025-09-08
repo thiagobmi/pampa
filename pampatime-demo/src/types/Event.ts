@@ -83,7 +83,8 @@ export const FIXED_WEEK_DATES = {
   tuesday: new Date(2020, 0, 7),
   wednesday: new Date(2020, 0, 8),
   thursday: new Date(2020, 0, 9),
-  friday: new Date(2020, 0, 10)
+  friday: new Date(2020, 0, 10),
+  saturday: new Date(2020, 0, 11)
 } as const;
 
 // Helper function to get fixed date for a day
@@ -94,11 +95,13 @@ export const getFixedDateForDay = (dayName: string): Date => {
     'Quarta': FIXED_WEEK_DATES.wednesday,
     'Quinta': FIXED_WEEK_DATES.thursday,
     'Sexta': FIXED_WEEK_DATES.friday,
+    'Sábado': FIXED_WEEK_DATES.saturday,
     'Monday': FIXED_WEEK_DATES.monday,
     'Tuesday': FIXED_WEEK_DATES.tuesday,
     'Wednesday': FIXED_WEEK_DATES.wednesday,
     'Thursday': FIXED_WEEK_DATES.thursday,
-    'Friday': FIXED_WEEK_DATES.friday
+    'Friday': FIXED_WEEK_DATES.friday,
+    'Saturday': FIXED_WEEK_DATES.saturday
   };
   
   return dayMap[dayName] || FIXED_WEEK_DATES.monday;

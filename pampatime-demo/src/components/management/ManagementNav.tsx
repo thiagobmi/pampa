@@ -11,6 +11,7 @@ const navLinks: NavItem[] = [
   { label: 'Professor', path: '/professores' },
   { label: 'Sala', path: '/salas' },
   { label: 'Curso', path: '/cursos' },
+  { label: 'Turmas', path: '/turmas' },
   { label: 'Disciplinas', path: '/disciplinas' },
   { label: 'Semestres', path: '/semestres' },
 ];

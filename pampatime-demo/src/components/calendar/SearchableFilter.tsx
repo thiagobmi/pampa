@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ChevronDown, Search, X } from 'lucide-react';
 import useRealtimeCollection from '@/hooks/useRealtimeCollection';
-import { TeacherItem, BookingItem, SubjectItem, SemesterItem } from '@/types/management';
+import { TeacherItem, BookingItem, SubjectItem, TurmaItem } from '@/types/management';
 
 type FilterOption = {
   id: string;
@@ -41,17 +41,16 @@ const SearchableFilter: React.FC<SearchableFilterProps> = ({
 
   // Fontes do RTDB
   const { data: professores } = useRealtimeCollection<TeacherItem>('professores');
-  const { data: semestres } = useRealtimeCollection<SemesterItem>('semestres');
+  const { data: turmas } = useRealtimeCollection<TurmaItem>('turmas');
   const { data: salas } = useRealtimeCollection<BookingItem>('salas');
   const { data: disciplinas } = useRealtimeCollection<SubjectItem>('disciplinas');
-  const { data: turmas } = useRealtimeCollection<any>('turmas'); // opcional
 
   // Listas estáticas
   const horariosBase = useMemo(() => [
     '07:30','08:30','09:30','10:30','11:30','12:30','13:30','14:30','15:30','16:30','17:30','18:30','19:30','20:30','21:30','22:30'
   ], []);
   const diasBase = useMemo(() => (
-    ['Segunda','Terça','Quarta','Quinta','Sexta']
+    ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado']
   ), []);
   const modalidadesBase = useMemo(() => (
     ['Teórica','Prática','Assíncrona']
@@ -77,12 +76,12 @@ const SearchableFilter: React.FC<SearchableFilterProps> = ({
           additionalInfo: p.email || ''
         }));
 
-      case 'Semestre':
-        return (semestres || []).map(s => ({
-          id: s.id,
-          display: s.name,
-          searchText: `${s.name}`.toLowerCase(),
-          additionalInfo: ''
+      case 'Turma':
+        return (turmas || []).map(t => ({
+          id: t.id,
+          display: t.name,
+          searchText: `${t.name} ${t.course || ''}`.toLowerCase(),
+          additionalInfo: t.course || ''
         }));
 
       case 'Horário Início':
@@ -101,12 +100,6 @@ const SearchableFilter: React.FC<SearchableFilterProps> = ({
 
       case 'Dia':
         return diasBase.map((d, idx) => ({ id: `dia_${idx}`, display: d, searchText: d.toLowerCase(), additionalInfo: d }));
-
-      case 'Turma': {
-        const baseTurmas = (turmas || []).map((t: any) => t.code || t.nome || t.codigo).filter(Boolean);
-        const unique = Array.from(new Set(baseTurmas.length ? baseTurmas : ['A','B','C']));
-        return unique.map((t, idx) => ({ id: `tur_${idx}`, display: String(t), searchText: String(t).toLowerCase() }));
-      }
 
       case 'Modalidade':
         return modalidadesBase.map((m, idx) => ({ id: `mod_${idx}`, display: m, searchText: m.toLowerCase(), additionalInfo: 'Modalidade de Ensino' }));
@@ -130,7 +123,7 @@ const SearchableFilter: React.FC<SearchableFilterProps> = ({
       default:
         return [];
     }
-  }, [label, options, professores, semestres, salas, disciplinas, turmas, horariosBase, diasBase, modalidadesBase]);
+  }, [label, options, professores, turmas, salas, disciplinas, horariosBase, diasBase, modalidadesBase]);
   
   // Filter options based on search term
   const filteredOptions = currentOptions.filter(option =>
@@ -197,21 +190,21 @@ const SearchableFilter: React.FC<SearchableFilterProps> = ({
         const d = (disciplinas || []).find(x => x.code === selectedValue);
         return d?.name || '';
       }
-      case 'Semestre':
-        return selectedValue; // já é o nome/código
+      case 'Turma': {
+        const t = (turmas || []).find(x => x.name === selectedValue);
+        return t?.course || '';
+      }
       case 'Horário Início':
       case 'Horário Final':
         return '';
       case 'Dia':
         return selectedValue;
-      case 'Turma':
-        return '';
       case 'Modalidade':
         return 'Modalidade de Ensino';
       default:
         return '';
     }
-  }, [selectedValue, label, professores, salas, disciplinas]);
+  }, [selectedValue, label, professores, salas, disciplinas, turmas]);
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>

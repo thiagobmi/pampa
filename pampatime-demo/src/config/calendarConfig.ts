@@ -6,7 +6,7 @@ export const calendarConfig: CalendarOptions = {
   initialDate: new Date(2020, 0, 6), // January 6, 2020 (Monday of first week)
   headerToolbar: false,
   dayHeaderFormat: { weekday: 'long' },
-  hiddenDays: [0, 6], // Hide Sunday (0) and Saturday (6)
+  hiddenDays: [0], // Hide only Sunday (0), show Saturday (6)
   editable: true,
   selectable: false,
   selectMirror: true,
@@ -57,9 +57,9 @@ export const calendarConfig: CalendarOptions = {
   dragScroll: true,
 
   eventAllow: function(dropInfo, draggedEvent) { 
-    // Only allow Monday to Friday (1-5)
+    // Allow Monday to Saturday (1-6)
     const day = dropInfo.start.getDay();
-    return day >= 1 && day <= 5;
+    return day >= 1 && day <= 6;
   },
 
   // Prevent navigation away from the fixed week

@@ -1,4 +1,4 @@
-// src/components/FilterPanel.tsx - Refactored version
+// src/components/FilterPanel.tsx - Refactored version with Turma
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import SearchableFilter from './SearchableFilter';
@@ -17,12 +17,11 @@ interface FilterPanelProps {
 interface FormState {
   disciplina: string;
   professor: string;
-  semestre: string;
+  turma: string;
   horarioInicio: string;
   horarioFinal: string;
   sala: string;
   dia: string;
-  turma: string;
   modalidade: string;
 }
 
@@ -36,12 +35,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   const [formData, setFormData] = useState<FormState>({
     disciplina: '',
     professor: '',
-    semestre: '',
+    turma: '',
     horarioInicio: '',
     horarioFinal: '',
     sala: '',
     dia: '',
-    turma: '',
     modalidade: ''
   });
 
@@ -54,12 +52,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       setFormData({
         disciplina: selectedEvent.title || '',
         professor: selectedEvent.professor || '',
-        semestre: selectedEvent.semester || '',
+        turma: selectedEvent.class || '',
         horarioInicio: startTime ? formatTimeForInput(startTime) : '',
         horarioFinal: endTime ? formatTimeForInput(endTime) : '',
         sala: selectedEvent.room || '',
         dia: startTime ? getDayNameFromFixedDate(startTime) : '',
-        turma: selectedEvent.class || '',
         modalidade: selectedEvent.type || ''
       });
     } else {
@@ -67,12 +64,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       setFormData({
         disciplina: '',
         professor: '',
-        semestre: '',
+        turma: '',
         horarioInicio: '',
         horarioFinal: '',
         sala: '',
         dia: '',
-        turma: '',
         modalidade: ''
       });
     }
@@ -107,8 +103,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   // Validate form completion
   const isFormValid = (): boolean => {
     const requiredFields: (keyof FormState)[] = [
-      'disciplina', 'professor', 'semestre', 'horarioInicio',
-      'horarioFinal', 'sala', 'dia', 'turma', 'modalidade'
+      'disciplina', 'professor', 'turma', 'horarioInicio',
+      'horarioFinal', 'sala', 'dia', 'modalidade'
     ];
 
     return requiredFields.every(field => formData[field].trim() !== '');
@@ -133,7 +129,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         endTime: formData.horarioFinal,
         room: formData.sala,
         professor: formData.professor,
-        semester: formData.semestre,
+        semester: formData.turma, // Usar turma no lugar de semester
         class: formData.turma,
         type: formData.modalidade
       };
@@ -145,12 +141,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       setFormData({
         disciplina: '',
         professor: '',
-        semestre: '',
+        turma: '',
         horarioInicio: '',
         horarioFinal: '',
         sala: '',
         dia: '',
-        turma: '',
         modalidade: ''
       });
     } catch (error: any) {
@@ -172,7 +167,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         endTime: formData.horarioFinal,
         room: formData.sala,
         professor: formData.professor,
-        semester: formData.semestre,
+        semester: formData.turma, // Usar turma no lugar de semester
         class: formData.turma,
         type: formData.modalidade
       };
@@ -207,11 +202,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         <div className="mb-3 p-2 bg-blue-50 rounded border-l-4 border-blue-500">
           <div className="text-sm font-medium text-blue-800">Editando Evento</div>
           <div className="text-xs text-blue-600">{selectedEvent.title}</div>
-          {(selectedEvent.semester || selectedEvent.class) && (
+          {(selectedEvent.class || selectedEvent.professor) && (
             <div className="text-xs text-blue-500 mt-1">
-              {selectedEvent.semester && `Semestre: ${selectedEvent.semester}`}
-              {selectedEvent.semester && selectedEvent.class && ' • '}
               {selectedEvent.class && `Turma: ${selectedEvent.class}`}
+              {selectedEvent.class && selectedEvent.professor && ' • '}
+              {selectedEvent.professor && `Prof: ${selectedEvent.professor}`}
             </div>
           )}
           <Button
@@ -253,12 +248,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         <div className="grid grid-cols-2 gap-2">
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
-              Semestre
+              Turma
             </label>
             <SearchableFilter
-              label="Semestre"
-              value={formData.semestre}
-              onSelect={(value) => handleFieldChange('semestre', value)}
+              label="Turma"
+              value={formData.turma}
+              onSelect={(value) => handleFieldChange('turma', value)}
             />
           </div>
           <div>
@@ -318,17 +313,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               onSelect={(value) => handleFieldChange('dia', value)}
             />
           </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Turma
-          </label>
-          <SearchableFilter
-            label="Turma"
-            value={formData.turma}
-            onSelect={(value) => handleFieldChange('turma', value)}
-          />
         </div>
       </div>
 

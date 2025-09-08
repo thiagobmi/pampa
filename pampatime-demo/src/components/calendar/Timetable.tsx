@@ -1,4 +1,4 @@
-// src/components/Timetable.tsx - Versão funcional corrigida
+// src/components/Timetable.tsx - Parte 1: Imports e Interfaces
 import React, { forwardRef, useImperativeHandle, useState, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { CalendarEvent, applyEventColors, CONFLICT_COLORS } from '@/types/Event'
 import { useEventFilters } from '@/hooks/useEventFilters';
 import { ConflictService } from '@/services/conflictService';
 
-type FilterType = 'professor' | 'semestre' | 'sala';
+type FilterType = 'professor' | 'turma' | 'sala';
 
 interface ConflictData {
   conflictIds: Set<string | number>;
@@ -29,6 +29,7 @@ interface TimetableRef {
   getEvents: () => CalendarEvent[];
 }
 
+// Parte 2: Início do Componente e Estados
 const Timetable = forwardRef<TimetableRef, TimetableProps>(({
   events = [],
   conflicts,
@@ -36,10 +37,12 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
   onEventChange,
   onEventsChange
 }, ref) => {
-  // Usar eventos externos diretamente, sem estado interno duplicado
+  // Estados do componente
   const [selectedEventId, setSelectedEventId] = useState<string | number | null>(null);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [searchModalTerm, setSearchModalTerm] = useState('');
+  const [showConflictPanel, setShowConflictPanel] = useState(false);
+  const [selectedConflictType, setSelectedConflictType] = useState<'sala' | 'professor' | 'turma' | null>(null);
 
   // Use os eventos passados como props
   const filterManager = useEventFilters(events);
@@ -68,21 +71,19 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
 
   // Conflict summary
   const conflictSummary = React.useMemo(() => {
-    return conflicts ? ConflictService.createConflictSummary(conflicts) : { sala: [], professor: [], semestre: [], total: 0 };
+    return conflicts ? ConflictService.createConflictSummary(conflicts) : { sala: [], professor: [], turma: [], total: 0 };
   }, [conflicts]);
 
-  // Event handlers
+  // Parte 3: Event Handlers
   const handleEventClick = (info: any) => {
     const eventData = createEventDataFromFullCalendar(info.event);
     setSelectedEventId(eventData.id);
     
-    // Show conflict alert if needed with navigation options
     if (eventData.id && conflicts?.conflictDetails.has(eventData.id)) {
       const eventConflicts = conflicts.conflictDetails.get(eventData.id) || [];
       const conflictDesc = ConflictService.getConflictDescription(eventConflicts);
       
       if (conflictDesc) {
-        // Encontrar eventos conflitantes
         const conflictingEvents = ConflictService.getConflictingEvents(eventData.id, events, conflicts);
         
         let message = `⚠️ CONFLITO DETECTADO:\n\n${conflictDesc}`;
@@ -95,31 +96,6 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
           });
           message += '\n\nClique em "Editar" para resolver o conflito ou use os filtros para navegar até os eventos conflitantes.';
         }
-        
-        // setTimeout(() => {
-        //   alert(message);
-          
-        //   // Oferecer navegação rápida para o primeiro evento conflitante
-        //   if (conflictingEvents.length > 0 && window.confirm('Deseja navegar para o primeiro evento em conflito?')) {
-        //     const firstConflict = conflictingEvents[0];
-            
-        //     // Determinar o tipo de conflito mais relevante
-        //     const eventConflicts = conflicts.conflictDetails.get(eventData.id) || [];
-        //     const conflictTypes = eventConflicts.map(c => c.conflictType);
-            
-        //     // Priorizar o tipo de conflito: sala > professor > semestre
-        //     let filterType: 'sala' | 'professor' | 'semestre' = 'professor';
-        //     if (conflictTypes.includes('sala')) {
-        //       filterType = 'sala';
-        //     } else if (conflictTypes.includes('professor')) {
-        //       filterType = 'professor';
-        //     } else if (conflictTypes.includes('semestre')) {
-        //       filterType = 'semestre';
-        //     }
-            
-        //     navigateToEvent(firstConflict, filterType);
-        //   }
-        // }, 100);
       }
     }
     
@@ -134,10 +110,8 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
       end: info.event.end
     });
     
-    // Notificar o componente pai sobre a mudança
     onEventChange?.(recoloredEvent);
     
-    // Se o evento arrastado é o selecionado, notificar também
     if (selectedEventId === info.event.id && onEventChange) {
       setTimeout(() => onEventChange(recoloredEvent), 0);
     }
@@ -151,15 +125,14 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
       end: info.event.end
     });
     
-    // Notificar o componente pai sobre a mudança
     onEventChange?.(recoloredEvent);
     
-    // Se o evento redimensionado é o selecionado, notificar também
     if (selectedEventId === info.event.id && onEventChange) {
       setTimeout(() => onEventChange(recoloredEvent), 0);
     }
   };
 
+  // Parte 4: handleEventReceive e Utility Functions
   const handleEventReceive = (info: any) => {
     console.log('Event received:', info.event);
     
@@ -170,10 +143,6 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
       extendedProps: info.event.extendedProps || {}
     };
     
-    // IMPORTANTE: Não remover o evento aqui, deixar o FullCalendar gerenciar
-    // info.event.remove();
-    
-    // Criar o novo evento
     const newCalendarEvent: CalendarEvent = {
       id: `event-${Date.now()}-${Math.random()}`,
       title: eventData.title,
@@ -191,14 +160,11 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
     
     console.log('Adding new event:', coloredEvent);
     
-    // Atualizar o evento no FullCalendar com as cores corretas
     info.event.setProp('backgroundColor', coloredEvent.backgroundColor);
     info.event.setProp('borderColor', coloredEvent.borderColor);
     info.event.setProp('textColor', coloredEvent.textColor);
     info.event.setProp('id', coloredEvent.id);
     
-    // Notificar o componente pai que um novo evento foi adicionado
-    // Vamos simular como se fosse uma atualização da lista de eventos
     const updatedEvents = [...events, coloredEvent];
     onEventsChange?.(updatedEvents);
 
@@ -225,16 +191,10 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
     };
   };
 
-  // Estados para o painel de conflitos
-  const [showConflictPanel, setShowConflictPanel] = useState(false);
-  const [selectedConflictType, setSelectedConflictType] = useState<'sala' | 'professor' | 'semestre' | null>(null);
-
-  // Função para navegar para um evento específico com filtro inteligente
-  const navigateToEvent = useCallback((event: CalendarEvent, conflictType?: 'sala' | 'professor' | 'semestre') => {
-    // Limpar filtros primeiro
+  // Parte 5: Função de Navegação e Grupos de Conflito
+  const navigateToEvent = useCallback((event: CalendarEvent, conflictType?: 'sala' | 'professor' | 'turma') => {
     filterManager.clearAllFilters();
     
-    // Aplicar filtro baseado no tipo de conflito, se especificado
     if (conflictType) {
       switch (conflictType) {
         case 'sala':
@@ -249,28 +209,26 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
             filterManager.setActiveFilterType('professor');
           }
           break;
-        case 'semestre':
-          if (event.semester) {
-            filterManager.setFilter('semestre', event.semester);
-            filterManager.setActiveFilterType('semestre');
+        case 'turma':
+          if (event.class) {
+            filterManager.setFilter('turma', event.class);
+            filterManager.setActiveFilterType('turma');
           }
           break;
       }
     } else {
-      // Fallback para o comportamento antigo se não especificado
       if (event.professor) {
         filterManager.setFilter('professor', event.professor);
         filterManager.setActiveFilterType('professor');
       } else if (event.room) {
         filterManager.setFilter('sala', event.room);
         filterManager.setActiveFilterType('sala');
-      } else if (event.semester) {
-        filterManager.setFilter('semestre', event.semester);
-        filterManager.setActiveFilterType('semestre');
+      } else if (event.class) {
+        filterManager.setFilter('turma', event.class);
+        filterManager.setActiveFilterType('turma');
       }
     }
     
-    // Simular clique no evento para selecioná-lo
     setTimeout(() => {
       setSelectedEventId(event.id);
       onEventClick?.(event);
@@ -279,13 +237,13 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
 
   // Obter eventos conflitantes agrupados por tipo
   const conflictGroups = React.useMemo(() => {
-    if (!conflicts) return { sala: [], professor: [], semestre: [] };
+    if (!conflicts) return { sala: [], professor: [], turma: [] };
     
     const groups: {
       sala: { value: string; events: CalendarEvent[] }[];
       professor: { value: string; events: CalendarEvent[] }[];
-      semestre: { value: string; events: CalendarEvent[] }[];
-    } = { sala: [], professor: [], semestre: [] };
+      turma: { value: string; events: CalendarEvent[] }[];
+    } = { sala: [], professor: [], turma: [] };
     
     // Agrupar por sala
     conflictSummary.sala.forEach(sala => {
@@ -307,18 +265,20 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
       }
     });
     
-    // Agrupar por semestre
-    conflictSummary.semestre.forEach(semestre => {
-      const eventsBySemestre = events.filter(event => 
-        event.semester === semestre && event.id && conflicts.conflictIds.has(event.id)
+    // Agrupar por turma
+    conflictSummary.turma?.forEach(turma => {
+      const eventsByTurma = events.filter(event => 
+        event.class === turma && event.id && conflicts.conflictIds.has(event.id)
       );
-      if (eventsBySemestre.length > 0) {
-        groups.semestre.push({ value: semestre, events: eventsBySemestre });
+      if (eventsByTurma.length > 0) {
+        groups.turma.push({ value: turma, events: eventsByTurma });
       }
     });
     
     return groups;
   }, [conflicts, conflictSummary, events]);
+
+  // Parte 6: Funções do Modal de Busca
   const openSearchModal = () => {
     setSearchModalTerm('');
     setShowSearchModal(true);
@@ -346,17 +306,14 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
   // Imperative handle for parent component
   useImperativeHandle(ref, () => ({
     addEvent: (event: CalendarEvent) => {
-      // Adicionar evento através do componente pai
       const updatedEvents = [...events, event];
       onEventsChange?.(updatedEvents);
     },
     updateEvent: (event: CalendarEvent) => {
-      // Atualizar evento através do componente pai
       const updatedEvents = events.map(e => e.id === event.id ? event : e);
       onEventsChange?.(updatedEvents);
     },
     deleteEvent: (eventId: string | number) => {
-      // Remover evento através do componente pai
       const updatedEvents = events.filter(e => e.id !== eventId);
       onEventsChange?.(updatedEvents);
       
@@ -383,7 +340,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
   }, [showSearchModal]);
 
   const currentFilterInfo = filterManager.getCurrentFilterInfo();
-
+  // Parte 7: Return e CSS
   return (
     <>
       {/* CSS for conflict animations */}
@@ -421,7 +378,8 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
         `
       }} />
       
-      <div className="w-full h-full flex flex-col border border-gray-200 rounded-lg shadow-sm bg-white">
+      <div className="w-full h-full flex flex-col border border-gray-200 rounded-lg shadow-sm bg-white"></div>
+      // Parte 8: Header com Navegação e Filtros
         {/* Header with navigation and filters */}
         <div className="flex items-center justify-between p-2 border-b">
           {/* Filter Navigation */}
@@ -517,10 +475,11 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
+          // Parte 9: Botões de Filtro e Busca
           
           {/* Filter Type Buttons */}
           <div className="flex items-center divide-x divide-gray-200 rounded-md overflow-hidden border border-gray-300">
-            {(['professor', 'semestre', 'sala'] as FilterType[]).map((filterType) => (
+            {(['professor', 'turma', 'sala'] as FilterType[]).map((filterType) => (
               <Button
                 key={filterType}
                 variant="outline"
@@ -571,7 +530,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
             )}
           </div>
         </div>
-
+        // Parte 10: Status Bar
         {/* Status bar */}
         {(filterManager.hasActiveFilters || conflictSummary.total > 0) && (
           <div className="px-2 py-1 bg-blue-50 border-b border-blue-200 text-xs">
@@ -623,22 +582,22 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                               👨‍🏫 {conflictSummary.professor.length} prof{conflictSummary.professor.length > 1 ? 's' : ''}
                             </span>
                           )}
-                          {conflictSummary.semestre.length > 0 && (
+                          {conflictSummary.turma && conflictSummary.turma.length > 0 && (
                             <span 
                               className={`px-1 rounded cursor-pointer transition-colors ${
-                                selectedConflictType === 'semestre' && showConflictPanel
+                                selectedConflictType === 'turma' && showConflictPanel
                                   ? 'bg-red-400 text-white shadow-sm' 
                                   : 'bg-red-200 hover:bg-red-300'
                               }`}
-                              title={`Semestres em conflito: ${conflictSummary.semestre.join(', ')} - Clique para ver detalhes`}
+                              title={`Turmas em conflito: ${conflictSummary.turma.join(', ')} - Clique para ver detalhes`}
                               onClick={() => {
-                                setSelectedConflictType('semestre');
+                                setSelectedConflictType('turma');
                                 if (!showConflictPanel) {
                                   setShowConflictPanel(true);
                                 }
                               }}
                             >
-                              📅 {conflictSummary.semestre.length} sem{conflictSummary.semestre.length > 1 ? 's' : ''}
+                              🎓 {conflictSummary.turma.length} turma{conflictSummary.turma.length > 1 ? 's' : ''}
                             </span>
                           )}
                         </div>
@@ -655,7 +614,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                   </div>
                 )}
               </div>
-              
+              // Parte 11: Tags de Filtros Ativos
               {/* Active filters display */}
               <div className="flex items-center space-x-2">
                 {filterManager.filters.professor && (
@@ -678,13 +637,13 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                     />
                   </span>
                 )}
-                {filterManager.filters.semestre && (
+                {filterManager.filters.turma && (
                   <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs flex items-center">
-                    Sem: {filterManager.filters.semestre}
+                    Turma: {filterManager.filters.turma}
                     <X 
                       size={12} 
                       className="ml-1 cursor-pointer hover:bg-purple-200 rounded" 
-                      onClick={() => filterManager.clearFilter('semestre')}
+                      onClick={() => filterManager.clearFilter('turma')}
                     />
                   </span>
                 )}
@@ -702,7 +661,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
             </div>
           </div>
         )}
-
+        // Parte 12: Painel de Conflitos - Início
         {/* Painel de Detalhes de Conflitos */}
         {showConflictPanel && conflictSummary.total > 0 && (
           <div className="border-b border-red-200 bg-red-50 p-3">
@@ -714,7 +673,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                   <span className="ml-2 text-sm font-normal">
                     ({selectedConflictType === 'sala' ? '🏢 Salas' : 
                       selectedConflictType === 'professor' ? '👨‍🏫 Professores' : 
-                      '📅 Semestres'})
+                      '🎓 Turmas'})
                   </span>
                 )}
               </h4>
@@ -757,7 +716,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                   </div>
                 </div>
               )}
-
+             // Parte 13: Conflitos de Professor e Turma
               {/* Conflitos de Professor */}
               {(!selectedConflictType || selectedConflictType === 'professor') && conflictGroups.professor.length > 0 && (
                 <div className="bg-white p-2 rounded border border-red-200">
@@ -787,23 +746,23 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                 </div>
               )}
 
-              {/* Conflitos de Semestre */}
-              {(!selectedConflictType || selectedConflictType === 'semestre') && conflictGroups.semestre.length > 0 && (
+              {/* Conflitos de Turma */}
+              {(!selectedConflictType || selectedConflictType === 'turma') && conflictGroups.turma.length > 0 && (
                 <div className="bg-white p-2 rounded border border-red-200">
                   <h5 className="font-medium text-sm text-red-700 mb-2 flex items-center">
-                    📅 Conflitos de Semestre ({conflictGroups.semestre.length})
+                    🎓 Conflitos de Turma ({conflictGroups.turma.length})
                   </h5>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {conflictGroups.semestre.map((group, index) => (
+                    {conflictGroups.turma.map((group, index) => (
                       <div key={index} className="text-xs">
-                        <div className="font-medium text-red-600 mb-1">Semestre {group.value}:</div>
+                        <div className="font-medium text-red-600 mb-1">Turma {group.value}:</div>
                         {group.events.map((event, eventIndex) => {
                           const time = event.start ? new Date(event.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
                           return (
                             <div 
                               key={eventIndex} 
                               className="pl-2 text-gray-700 hover:text-red-700 cursor-pointer hover:bg-red-50 rounded p-1"
-                              onClick={() => navigateToEvent(event, 'semestre')}
+                              onClick={() => navigateToEvent(event, 'turma')}
                               title="Clique para navegar até este evento"
                             >
                               • {event.title} ({time})
@@ -822,7 +781,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
             </div>
           </div>
         )}
-
+        // Parte 14: Calendar e Fechamento Final
         {/* Calendar */}
         <div className="flex-1 min-h-0 overflow-hidden">
           <div className="h-full">
@@ -842,4 +801,4 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
 
 Timetable.displayName = 'Timetable';
 
-export default Timetable;
+export default Timetable; 
