@@ -378,8 +378,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
         `
       }} />
       
-      <div className="w-full h-full flex flex-col border border-gray-200 rounded-lg shadow-sm bg-white"></div>
-      // Parte 8: Header com Navegação e Filtros
+      <div className="w-full h-full flex flex-col border border-gray-200 rounded-lg shadow-sm bg-white">
         {/* Header with navigation and filters */}
         <div className="flex items-center justify-between p-2 border-b">
           {/* Filter Navigation */}
@@ -475,7 +474,6 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          // Parte 9: Botões de Filtro e Busca
           
           {/* Filter Type Buttons */}
           <div className="flex items-center divide-x divide-gray-200 rounded-md overflow-hidden border border-gray-300">
@@ -530,7 +528,6 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
             )}
           </div>
         </div>
-        // Parte 10: Status Bar
         {/* Status bar */}
         {(filterManager.hasActiveFilters || conflictSummary.total > 0) && (
           <div className="px-2 py-1 bg-blue-50 border-b border-blue-200 text-xs">
@@ -614,7 +611,6 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                   </div>
                 )}
               </div>
-              // Parte 11: Tags de Filtros Ativos
               {/* Active filters display */}
               <div className="flex items-center space-x-2">
                 {filterManager.filters.professor && (
@@ -661,7 +657,6 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
             </div>
           </div>
         )}
-        // Parte 12: Painel de Conflitos - Início
         {/* Painel de Detalhes de Conflitos */}
         {showConflictPanel && conflictSummary.total > 0 && (
           <div className="border-b border-red-200 bg-red-50 p-3">
@@ -716,7 +711,6 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                   </div>
                 </div>
               )}
-             // Parte 13: Conflitos de Professor e Turma
               {/* Conflitos de Professor */}
               {(!selectedConflictType || selectedConflictType === 'professor') && conflictGroups.professor.length > 0 && (
                 <div className="bg-white p-2 rounded border border-red-200">
@@ -781,7 +775,6 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
             </div>
           </div>
         )}
-        // Parte 14: Calendar e Fechamento Final
         {/* Calendar */}
         <div className="flex-1 min-h-0 overflow-hidden">
           <div className="h-full">

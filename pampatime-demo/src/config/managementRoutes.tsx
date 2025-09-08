@@ -62,7 +62,13 @@ export const managementRoutes: { [key: string]: ManagementRouteConfig<any> } = {
     onAddClick: () => alert("Abrir formulário para adicionar turma!"),
     columns: [
       { key: "name", header: "Nome da Turma" },
-      { key: "course", header: "Curso" },
+      { 
+        key: "course", 
+        header: "Curso",
+        render: (item: TurmaItem) => (
+          <span className="text-gray-700">{item.course}</span>
+        )
+      },
       { key: "id", header: "Ações" }
     ],
   },
@@ -76,7 +82,13 @@ export const managementRoutes: { [key: string]: ManagementRouteConfig<any> } = {
     columns: [
       { key: "code", header: "Código" },
       { key: "name", header: "Nome" },
-      { key: "course", header: "Curso" },
+      { 
+        key: "course", 
+        header: "Curso",
+        render: (item: SubjectItem) => (
+          <span className="text-gray-700">{item.course}</span>
+        )
+      },
       { key: "chTeorica", header: "CH Teórica" },
       { key: "chPratica", header: "CH Prática" },
       { key: "id", header: "Ações" }

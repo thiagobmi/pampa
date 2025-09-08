@@ -38,7 +38,7 @@ const GenericItemModal = <T extends ManagedItem>({
 
   const { addDocument, updateDocument, loading, error, success } = useRealtimeOperations<T>(collectionPath);
   
-  // Carregar cursos para o dropdown se estivermos no formulário de disciplinas
+  // Carregar cursos para o dropdown se estivermos no formulário de disciplinas ou turmas
   const { data: cursos } = useRealtimeCollection<CourseItem>('cursos');
 
   // Estado para guardar as configurações de campo atualizadas
@@ -54,7 +54,7 @@ const GenericItemModal = <T extends ManagedItem>({
 
   useEffect(() => {
     // Atualizar as opções do campo curso quando os cursos forem carregados
-    if (collectionPath === 'disciplinas' && cursos.length > 0) {
+    if ((collectionPath === 'disciplinas' || collectionPath === 'turmas') && cursos.length > 0) {
       const updatedFields = formConfig.fields.map(field => {
         if (field.id === 'course' && field.type === 'select') {
           return {
@@ -86,6 +86,8 @@ const GenericItemModal = <T extends ManagedItem>({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação de campos obrigatórios
     for (const field of updatedFormConfig.fields) {
       if (field.required && (!formData[field.id as keyof Omit<T, 'id'>] || String(formData[field.id as keyof Omit<T, 'id'>]).trim() === '')) {
         alert(`Por favor, preencha o campo ${field.label}.`);
@@ -93,31 +95,33 @@ const GenericItemModal = <T extends ManagedItem>({
       }
     }
 
-    if (initialItem) {
-      const changedFields: Partial<Omit<T, 'id'>> = {};
-      Object.keys(formData).forEach(key => {
-        // Compara o valor atual do formulário com o valor inicial do item
-        if (formData[key as keyof Omit<T, 'id'>] !== (initialItem as any)[key]) {
-          (changedFields as any)[key] = formData[key as keyof Omit<T, 'id'>];
+    try {
+      if (initialItem) {
+        const changedFields: Partial<Omit<T, 'id'>> = {};
+        Object.keys(formData).forEach(key => {
+          // Compara o valor atual do formulário com o valor inicial do item
+          if (formData[key as keyof Omit<T, 'id'>] !== (initialItem as any)[key]) {
+            (changedFields as any)[key] = formData[key as keyof Omit<T, 'id'>];
+          }
+        });
+
+        if (Object.keys(changedFields).length > 0) {
+          await updateDocument(initialItem.id, changedFields);
+        } else {
+          onClose();
+          return;
         }
-      });
-
-      if (Object.keys(changedFields).length > 0) {
-        await updateDocument(initialItem.id, changedFields);
       } else {
-        onClose();
-        return;
+        await addDocument(formData);
       }
-    } else {
-      await addDocument(formData);
-    }
 
-    if (success) {
-      alert(`${initialItem ? 'Alterações salvas' : formConfig.title.replace('Adicionar ', '')} com sucesso!`);
-      onItemSaved();
-      onClose(); 
-    } else if (error) {
-      alert(`Erro ao salvar: ${error}`);
+      if (success) {
+        alert(`${initialItem ? 'Alterações salvas' : formConfig.title.replace('Adicionar ', '')} com sucesso!`);
+        onItemSaved();
+        onClose(); 
+      }
+    } catch (err: any) {
+      alert(`Erro ao salvar: ${err.message || error}`);
     }
   };
 
@@ -129,7 +133,7 @@ const GenericItemModal = <T extends ManagedItem>({
         <DialogHeader>
           <DialogTitle>{modalTitle}</DialogTitle>
           <DialogDescription>
-            {initialItem ? `Altere os dados do(a) ${modalTitle.toLowerCase()}` : `Preencha os dados do(a) novo(a) ${formConfig.title.replace('Adicionar ', '').toLowerCase()}`}
+            {initialItem ? `Altere os dados da ${modalTitle.toLowerCase()}` : `Preencha os dados da nova ${formConfig.title.replace('Adicionar ', '').toLowerCase()}`}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">

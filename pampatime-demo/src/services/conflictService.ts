@@ -3,7 +3,7 @@ import { CalendarEvent } from '@/types/Event';
 
 export interface ConflictInfo {
   eventId: string | number;
-  conflictType: 'sala' | 'professor' | 'semestre';
+  conflictType: 'sala' | 'professor' | 'turma';
   conflictValue: string;
   conflictWith: string | number;
 }
@@ -16,7 +16,7 @@ export interface ConflictData {
 export interface ConflictSummary {
   sala: string[];
   professor: string[];
-  semestre: string[];
+  turma: string[];
   total: number;
 }
 
@@ -99,21 +99,21 @@ export class ConflictService {
       );
     }
 
-    // Semester conflict (different subjects in same semester at same time)
-    if (event1.semester && event2.semester && 
-        event1.semester.trim() === event2.semester.trim() && 
+    // Turma conflict (different subjects in same turma at same time)
+    if (event1.class && event2.class && 
+        event1.class.trim() === event2.class.trim() && 
         event1.title !== event2.title) {
       conflicts.push(
         {
           eventId: event1.id,
-          conflictType: 'semestre',
-          conflictValue: event1.semester,
+          conflictType: 'turma',
+          conflictValue: event1.class,
           conflictWith: event2.id
         },
         {
           eventId: event2.id,
-          conflictType: 'semestre',
-          conflictValue: event2.semester,
+          conflictType: 'turma',
+          conflictValue: event2.class,
           conflictWith: event1.id
         }
       );
@@ -151,7 +151,7 @@ export class ConflictService {
     const summary = { 
       sala: new Set<string>(), 
       professor: new Set<string>(), 
-      semestre: new Set<string>() 
+      turma: new Set<string>() 
     };
 
     conflictData.conflictDetails.forEach((conflicts) => {
@@ -163,7 +163,7 @@ export class ConflictService {
     return {
       sala: Array.from(summary.sala),
       professor: Array.from(summary.professor),
-      semestre: Array.from(summary.semestre),
+      turma: Array.from(summary.turma),
       total: conflictData.conflictIds.size
     };
   }
@@ -194,9 +194,9 @@ export class ConflictService {
       descriptions.push(`Prof. ${professores.join(', ')} em conflito`);
     }
 
-    if (conflictsByType.semestre) {
-      const semestres = Array.from(conflictsByType.semestre);
-      descriptions.push(`Semestre ${semestres.join(', ')} sobreposto`);
+    if (conflictsByType.turma) {
+      const turmas = Array.from(conflictsByType.turma);
+      descriptions.push(`Turma ${turmas.join(', ')} sobreposta`);
     }
 
     return descriptions.join(' • ');
@@ -234,7 +234,7 @@ export class ConflictService {
 
     const hasRoomConflict = conflictInfo.some(c => c.conflictType === 'sala');
     const hasProfessorConflict = conflictInfo.some(c => c.conflictType === 'professor');
-    const hasSemesterConflict = conflictInfo.some(c => c.conflictType === 'semestre');
+    const hasTurmaConflict = conflictInfo.some(c => c.conflictType === 'turma');
 
     if (hasRoomConflict) {
       suggestions.push('• Alterar a sala de uma das aulas');
@@ -246,9 +246,9 @@ export class ConflictService {
       suggestions.push('• Verificar se outro professor pode assumir uma das aulas');
     }
 
-    if (hasSemesterConflict) {
+    if (hasTurmaConflict) {
       suggestions.push('• Alterar o horário de uma das disciplinas');
-      suggestions.push('• Verificar se as disciplinas podem ser oferecidas em semestres diferentes');
+      suggestions.push('• Verificar se as disciplinas podem ser oferecidas em horários diferentes');
     }
 
     return suggestions;

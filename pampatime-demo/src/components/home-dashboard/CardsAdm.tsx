@@ -1,5 +1,5 @@
 import useRealtimeCollection from '@/hooks/useRealtimeCollection';
-import { TeacherItem, BookingItem, CourseItem, SubjectItem } from '@/types/management';
+import { TeacherItem, BookingItem, CourseItem, SubjectItem, TurmaItem } from '@/types/management';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import {
@@ -8,6 +8,7 @@ import {
     FiHome,
     FiBook,
     FiAward,
+    FiUserCheck,
 } from 'react-icons/fi';
 
 const CardsAdm = () => { 
@@ -17,6 +18,7 @@ const CardsAdm = () => {
     const { data: salasData, loading: salasLoading } = useRealtimeCollection<BookingItem>('salas', { listenLive: true });
     const { data: cursosData, loading: cursosLoading } = useRealtimeCollection<CourseItem>('cursos', { listenLive: true });
     const { data: disciplinasData, loading: disciplinasLoading } = useRealtimeCollection<SubjectItem>('disciplinas', { listenLive: true });
+    const { data: turmasData, loading: turmasLoading } = useRealtimeCollection<TurmaItem>('turmas', { listenLive: true });
 
     return (
         <section className="px-8 py-6 font-ubuntu">
@@ -44,7 +46,7 @@ const CardsAdm = () => {
 
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 {[
                     {
                         title: 'Professores',
@@ -71,6 +73,14 @@ const CardsAdm = () => {
                         loading: cursosLoading,
                     },
                     {
+                        title: 'Turmas',
+                        icon: <FiUserCheck />,
+                        color: 'border-purple-500',
+                        path: '/turmas',
+                        count: turmasData.length,
+                        loading: turmasLoading,
+                    },
+                    {
                         title: 'Disciplinas',
                         icon: <FiBook />,
                         color: 'border-red-500',
@@ -93,7 +103,7 @@ const CardsAdm = () => {
                         </div>
                         <Link
                             to={path}
-                            className="border border-black px-4 py-2 rounded-full font-medium hover:bg-green-500 hover:text-white transition text-center"
+                            className="border border-black px-4 py-2 rounded-full font-medium hover:bg-green-500 hover:text-white transition text-center inline-block"
                         >
                             Ver Detalhes
                         </Link>
@@ -111,6 +121,15 @@ const CardsAdm = () => {
                                 <strong className="text-gray-900">Visualize os Horários</strong>
                                 <p className="text-gray-600 text-sm">
                                     Consulte os horários alocados para disciplinas e professores.
+                                </p>
+                            </div>
+                        </li>
+                        <li className="flex gap-4">
+                            <FiUserCheck className="text-2xl text-black mt-1" />
+                            <div>
+                                <strong className="text-gray-900">Gerencie Turmas</strong>
+                                <p className="text-gray-600 text-sm">
+                                    Organize e gerencie as turmas dos diferentes cursos.
                                 </p>
                             </div>
                         </li>
@@ -140,7 +159,7 @@ const CardsAdm = () => {
                     <p className="text-gray-600 mb-4">
                         O sistema Horário Central foi desenvolvido para facilitar o gerenciamento
                         de horários acadêmicos, permitindo a alocação eficiente de salas,
-                        professores e disciplinas.
+                        professores, turmas e disciplinas.
                     </p>
                     <ul className="text-sm text-gray-700 space-y-2">
                         <li><strong style={{ color: '#785AEF' }}>T</strong> - Teórica</li>
@@ -154,4 +173,4 @@ const CardsAdm = () => {
     );
 };
 
-export default CardsAdm; 
+export default CardsAdm;
