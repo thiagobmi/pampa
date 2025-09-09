@@ -1,20 +1,24 @@
-// src/components/reports/ScheduleReportGenerator.tsx
 import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { CalendarEvent } from '@/types/Event';
 import { useRealtimeCalendarEvents } from '@/hooks/useRealtimeCalendarEvents';
-import { Download, Eye, Filter, FileText } from 'lucide-react';
+import { Download, Eye, Filter, FileText, X } from 'lucide-react';
+
+// Interface estendida para incluir nossas propriedades personalizadas
+interface ScheduleEvent extends CalendarEvent {
+  hasConflict?: boolean;
+  isExpandedSlot?: boolean;
+  originalDuration?: string;
+}
 
 const ScheduleReportGenerator = () => {
   const { events, loading } = useRealtimeCalendarEvents();
   const [selectedFilters, setSelectedFilters] = useState({
-    professor: '',
-    sala: '',
-    turma: '',
-    semestre: '',
-    modalidade: ''
+    professores: [] as string[],
+    salas: [] as string[],
+    turmas: [] as string[],
+    modalidades: [] as string[]
   });
-  const [showPreview, setShowPreview] = useState(false);
   const [reportTitle, setReportTitle] = useState('Horários');
   const [showFilters, setShowFilters] = useState(false);
 
@@ -23,24 +27,60 @@ const ScheduleReportGenerator = () => {
     const professors = [...new Set(events.map(e => e.professor).filter(Boolean))].sort();
     const salas = [...new Set(events.map(e => e.room).filter(Boolean))].sort();
     const turmas = [...new Set(events.map(e => e.class).filter(Boolean))].sort();
-    const semestres = [...new Set(events.map(e => e.semester).filter(Boolean))].sort();
     const modalidades = [...new Set(events.map(e => e.type).filter(Boolean))].sort();
 
-    return { professors, salas, turmas, semestres, modalidades };
+    return { professors, salas, turmas, modalidades };
   }, [events]);
 
   // Filtrar eventos baseado nos filtros selecionados
   const filteredEvents = useMemo(() => {
     return events.filter(event => {
-      return (!selectedFilters.professor || event.professor === selectedFilters.professor) &&
-             (!selectedFilters.sala || event.room === selectedFilters.sala) &&
-             (!selectedFilters.turma || event.class === selectedFilters.turma) &&
-             (!selectedFilters.semestre || event.semester === selectedFilters.semestre) &&
-             (!selectedFilters.modalidade || event.type === selectedFilters.modalidade);
+      const matchesProfessor = selectedFilters.professores.length === 0 ||
+        (event.professor && selectedFilters.professores.includes(event.professor));
+      const matchesSala = selectedFilters.salas.length === 0 ||
+        (event.room && selectedFilters.salas.includes(event.room));
+      const matchesTurma = selectedFilters.turmas.length === 0 ||
+        (event.class && selectedFilters.turmas.includes(event.class));
+      const matchesModalidade = selectedFilters.modalidades.length === 0 ||
+        (event.type && selectedFilters.modalidades.includes(event.type));
+
+      return matchesProfessor && matchesSala && matchesTurma && matchesModalidade;
     });
   }, [events, selectedFilters]);
 
-  // Organizar eventos por dia e horário
+  // Função para expandir eventos que ocupam múltiplos horários
+  const expandEventsToAllSlots = (events: CalendarEvent[]) => {
+    const expandedEvents: ScheduleEvent[] = [];
+    
+    events.forEach(event => {
+      const startDate = new Date(event.start);
+      const endDate = new Date(event.end || startDate);
+      
+      const durationMs = endDate.getTime() - startDate.getTime();
+      const durationHours = Math.ceil(durationMs / (1000 * 60 * 60));
+      
+      for (let i = 0; i < durationHours; i++) {
+        const slotStartDate = new Date(startDate);
+        slotStartDate.setHours(startDate.getHours() + i);
+        
+        const slotEndDate = new Date(slotStartDate);
+        slotEndDate.setHours(slotStartDate.getHours() + 1);
+        
+        expandedEvents.push({
+          ...event,
+          id: `${event.id}-slot-${i}`,
+          start: slotStartDate,
+          end: slotEndDate,
+          isExpandedSlot: true,
+          originalDuration: durationHours > 1 ? `${durationHours}h` : undefined
+        });
+      }
+    });
+    
+    return expandedEvents;
+  };
+
+  // Organizar eventos por dia e horário, com detecção de conflitos
   const organizedEvents = useMemo(() => {
     const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
     const timeSlots = [
@@ -49,7 +89,7 @@ const ScheduleReportGenerator = () => {
       '19:30', '20:30', '21:30', '22:30'
     ];
 
-    const schedule: { [key: string]: { [key: string]: CalendarEvent[] } } = {};
+    const schedule: { [key: string]: { [key: string]: ScheduleEvent[] } } = {};
     
     // Inicializar estrutura
     daysOfWeek.forEach(day => {
@@ -59,8 +99,10 @@ const ScheduleReportGenerator = () => {
       });
     });
 
-    // Organizar eventos
-    filteredEvents.forEach(event => {
+    const expandedEvents = expandEventsToAllSlots(filteredEvents);
+
+    // Organizar eventos expandidos
+    expandedEvents.forEach(event => {
       const startDate = new Date(event.start);
       const dayOfWeek = startDate.getDay();
       const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
@@ -73,8 +115,63 @@ const ScheduleReportGenerator = () => {
       }
     });
 
+    // --- INÍCIO: LÓGICA DE DETECÇÃO DE CONFLITOS ---
+    daysOfWeek.forEach(day => {
+      timeSlots.forEach(timeSlot => {
+        const eventsInSlot = schedule[day][timeSlot];
+        if (eventsInSlot.length <= 1) return; // Pula se não houver potencial para conflito
+
+        const professorCount: { [key: string]: number } = {};
+        const roomCount: { [key: string]: number } = {};
+        const classCount: { [key: string]: number } = {};
+
+        // Conta as ocorrências de professores, salas e turmas no mesmo horário
+        eventsInSlot.forEach(event => {
+          if (event.professor) professorCount[event.professor] = (professorCount[event.professor] || 0) + 1;
+          if (event.room) roomCount[event.room] = (roomCount[event.room] || 0) + 1;
+          if (event.class) classCount[event.class] = (classCount[event.class] || 0) + 1;
+        });
+
+        // Marca os eventos que estão em conflito
+        eventsInSlot.forEach(event => {
+          const hasProfessorConflict = event.professor && professorCount[event.professor] > 1;
+          const hasRoomConflict = event.room && roomCount[event.room] > 1;
+          const hasClassConflict = event.class && classCount[event.class] > 1;
+
+          if (hasProfessorConflict || hasRoomConflict || hasClassConflict) {
+            event.hasConflict = true;
+          }
+        });
+      });
+    });
+    // --- FIM: LÓGICA DE DETECÇÃO DE CONFLITOS ---
+
     return { schedule, daysOfWeek, timeSlots };
   }, [filteredEvents]);
+
+  // Funções para gerenciar filtros múltiplos
+  const addFilter = (filterType: keyof typeof selectedFilters, value: string) => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      [filterType]: [...prev[filterType], value]
+    }));
+  };
+
+  const removeFilter = (filterType: keyof typeof selectedFilters, value: string) => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      [filterType]: prev[filterType].filter(item => item !== value)
+    }));
+  };
+
+  const clearAllFilters = () => {
+    setSelectedFilters({
+      professores: [],
+      salas: [],
+      turmas: [],
+      modalidades: []
+    });
+  };
 
   // Gerar CSS para o relatório
   const generateCSS = () => `
@@ -126,6 +223,13 @@ const ScheduleReportGenerator = () => {
         min-height: 40px;
       }
 
+      /* --- INÍCIO: ESTILO PARA CÉLULAS COM CONFLITO --- */
+      td.conflict-cell {
+        background-color: #ffcccc !important; /* Fundo vermelho claro */
+        border: 1px dashed red !important;   /* Borda vermelha para reforçar */
+      }
+      /* --- FIM: ESTILO PARA CÉLULAS COM CONFLITO --- */
+
       td.time-column {
         width: 80px;
         font-weight: bold;
@@ -160,6 +264,12 @@ const ScheduleReportGenerator = () => {
         opacity: 0.8;
       }
 
+      .duration-indicator {
+        font-size: 8px;
+        color: #666;
+        font-style: italic;
+      }
+
       .report-footer {
         margin-top: 30px;
         font-size: 12px;
@@ -177,6 +287,7 @@ const ScheduleReportGenerator = () => {
         tr.odd { background-color: #EEEEEE !important; }
         tr.even { background-color: #CCCCCC !important; }
         .event-item { background: white !important; }
+        td.conflict-cell { background-color: #ffcccc !important; }
       }
     </style>
   `;
@@ -219,7 +330,12 @@ const ScheduleReportGenerator = () => {
       
       daysOfWeek.forEach(day => {
         const eventsInSlot = schedule[day][timeSlot] || [];
-        html += '<td class="day-column">';
+        
+        // --- INÍCIO: VERIFICA SE HÁ CONFLITO E APLICA A CLASSE ---
+        const hasConflict = eventsInSlot.some(e => e.hasConflict);
+        const tdClass = hasConflict ? 'day-column conflict-cell' : 'day-column';
+        html += `<td class="${tdClass}">`;
+        // --- FIM: VERIFICA SE HÁ CONFLITO E APLICA A CLASSE ---
         
         eventsInSlot.forEach(event => {
           html += `
@@ -230,6 +346,7 @@ const ScheduleReportGenerator = () => {
                 ${event.room ? `Sala: ${event.room}<br>` : ''}
                 ${event.class ? `Turma: ${event.class}<br>` : ''}
                 ${event.type ? `${event.type}` : ''}
+                ${event.originalDuration ? `<br><span class="duration-indicator">(${event.originalDuration})</span>` : ''}
               </div>
             </div>
           `;
@@ -247,13 +364,12 @@ const ScheduleReportGenerator = () => {
         <div class="report-footer">
           <p><strong>Relatório gerado em:</strong> ${new Date().toLocaleString('pt-BR')}</p>
           <p><strong>Total de eventos:</strong> ${filteredEvents.length}</p>
-          ${Object.values(selectedFilters).some(v => v) ? '<p><strong>Filtros aplicados:</strong></p><ul>' : ''}
-          ${selectedFilters.professor ? `<li>Professor: ${selectedFilters.professor}</li>` : ''}
-          ${selectedFilters.sala ? `<li>Sala: ${selectedFilters.sala}</li>` : ''}
-          ${selectedFilters.turma ? `<li>Turma: ${selectedFilters.turma}</li>` : ''}
-          ${selectedFilters.semestre ? `<li>Semestre: ${selectedFilters.semestre}</li>` : ''}
-          ${selectedFilters.modalidade ? `<li>Modalidade: ${selectedFilters.modalidade}</li>` : ''}
-          ${Object.values(selectedFilters).some(v => v) ? '</ul>' : ''}
+          ${Object.values(selectedFilters).some(arr => arr.length > 0) ? '<p><strong>Filtros aplicados:</strong></p><ul>' : ''}
+          ${selectedFilters.professores.length > 0 ? `<li>Professores: ${selectedFilters.professores.join(', ')}</li>` : ''}
+          ${selectedFilters.salas.length > 0 ? `<li>Salas: ${selectedFilters.salas.join(', ')}</li>` : ''}
+          ${selectedFilters.turmas.length > 0 ? `<li>Turmas: ${selectedFilters.turmas.join(', ')}</li>` : ''}
+          ${selectedFilters.modalidades.length > 0 ? `<li>Modalidades: ${selectedFilters.modalidades.join(', ')}</li>` : ''}
+          ${Object.values(selectedFilters).some(arr => arr.length > 0) ? '</ul>' : ''}
         </div>
       </body>
       </html>
@@ -328,86 +444,151 @@ const ScheduleReportGenerator = () => {
 
         {/* Filtros */}
         {showFilters && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg space-y-4">
+            {/* Professor */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Professor</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Professores</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {selectedFilters.professores.map(prof => (
+                  <span key={prof} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                    {prof}
+                    <button
+                      onClick={() => removeFilter('professores', prof)}
+                      className="ml-2 hover:text-blue-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
               <select
-                value={selectedFilters.professor}
-                onChange={(e) => setSelectedFilters(prev => ({ ...prev, professor: e.target.value }))}
+                onChange={(e) => {
+                  if (e.target.value && !selectedFilters.professores.includes(e.target.value)) {
+                    addFilter('professores', e.target.value);
+                    e.target.value = '';
+                  }
+                }}
                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
               >
-                <option value="">Todos</option>
-                {filterOptions.professors.map(prof => (
-                  <option key={prof} value={prof}>{prof}</option>
-                ))}
+                <option value="">Adicionar professor...</option>
+                {filterOptions.professors
+                  .filter(prof => !selectedFilters.professores.includes(prof))
+                  .map(prof => (
+                    <option key={prof} value={prof}>{prof}</option>
+                  ))}
               </select>
             </div>
 
+            {/* Sala */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sala</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Salas</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {selectedFilters.salas.map(sala => (
+                  <span key={sala} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                    {sala}
+                    <button
+                      onClick={() => removeFilter('salas', sala)}
+                      className="ml-2 hover:text-green-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
               <select
-                value={selectedFilters.sala}
-                onChange={(e) => setSelectedFilters(prev => ({ ...prev, sala: e.target.value }))}
+                onChange={(e) => {
+                  if (e.target.value && !selectedFilters.salas.includes(e.target.value)) {
+                    addFilter('salas', e.target.value);
+                    e.target.value = '';
+                  }
+                }}
                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
               >
-                <option value="">Todas</option>
-                {filterOptions.salas.map(sala => (
-                  <option key={sala} value={sala}>{sala}</option>
-                ))}
+                <option value="">Adicionar sala...</option>
+                {filterOptions.salas
+                  .filter(sala => !selectedFilters.salas.includes(sala))
+                  .map(sala => (
+                    <option key={sala} value={sala}>{sala}</option>
+                  ))}
               </select>
             </div>
 
+            {/* Turma */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Turma</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Turmas</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {selectedFilters.turmas.map(turma => (
+                  <span key={turma} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                    {turma}
+                    <button
+                      onClick={() => removeFilter('turmas', turma)}
+                      className="ml-2 hover:text-purple-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
               <select
-                value={selectedFilters.turma}
-                onChange={(e) => setSelectedFilters(prev => ({ ...prev, turma: e.target.value }))}
+                onChange={(e) => {
+                  if (e.target.value && !selectedFilters.turmas.includes(e.target.value)) {
+                    addFilter('turmas', e.target.value);
+                    e.target.value = '';
+                  }
+                }}
                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
               >
-                <option value="">Todas</option>
-                {filterOptions.turmas.map(turma => (
-                  <option key={turma} value={turma}>{turma}</option>
-                ))}
+                <option value="">Adicionar turma...</option>
+                {filterOptions.turmas
+                  .filter(turma => !selectedFilters.turmas.includes(turma))
+                  .map(turma => (
+                    <option key={turma} value={turma}>{turma}</option>
+                  ))}
               </select>
             </div>
 
+            {/* Modalidade */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Semestre</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Modalidades</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {selectedFilters.modalidades.map(modalidade => (
+                  <span key={modalidade} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
+                    {modalidade}
+                    <button
+                      onClick={() => removeFilter('modalidades', modalidade)}
+                      className="ml-2 hover:text-orange-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
               <select
-                value={selectedFilters.semestre}
-                onChange={(e) => setSelectedFilters(prev => ({ ...prev, semestre: e.target.value }))}
+                onChange={(e) => {
+                  if (e.target.value && !selectedFilters.modalidades.includes(e.target.value)) {
+                    addFilter('modalidades', e.target.value);
+                    e.target.value = '';
+                  }
+                }}
                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
               >
-                <option value="">Todos</option>
-                {filterOptions.semestres.map(sem => (
-                  <option key={sem} value={sem}>{sem}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Modalidade</label>
-              <select
-                value={selectedFilters.modalidade}
-                onChange={(e) => setSelectedFilters(prev => ({ ...prev, modalidade: e.target.value }))}
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="">Todas</option>
-                {filterOptions.modalidades.map(mod => (
-                  <option key={mod} value={mod}>{mod}</option>
-                ))}
+                <option value="">Adicionar modalidade...</option>
+                {filterOptions.modalidades
+                  .filter(modalidade => !selectedFilters.modalidades.includes(modalidade))
+                  .map(modalidade => (
+                    <option key={modalidade} value={modalidade}>{modalidade}</option>
+                  ))}
               </select>
             </div>
 
             <div className="flex items-end">
               <Button
                 variant="outline"
-                onClick={() => setSelectedFilters({
-                  professor: '', sala: '', turma: '', semestre: '', modalidade: ''
-                })}
+                onClick={clearAllFilters}
                 className="w-full"
+                disabled={Object.values(selectedFilters).every(arr => arr.length === 0)}
               >
-                Limpar Filtros
+                Limpar Todos os Filtros
               </Button>
             </div>
           </div>
@@ -470,3 +651,4 @@ const ScheduleReportGenerator = () => {
 };
 
 export default ScheduleReportGenerator;
+
