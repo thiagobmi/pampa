@@ -1,3 +1,4 @@
+// src/pages/GenericManagementPage.tsx - Versão atualizada com histórico
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,6 +10,7 @@ import { ManagedItem } from "@/types/management";
 import useRealtimeCollection from "@/hooks/useRealtimeCollection";
 import useRealtimeOperations from "@/hooks/useRealtimeOperations";
 import { entityFormConfigs } from '@/config/formConfig';
+import { useSimpleHistory } from '@/hooks/useSimpleHistory';
 import Papa from 'papaparse';
 
 interface GenericManagementPageProps<T extends ManagedItem> {
@@ -30,6 +32,7 @@ const GenericManagementPage = (props: GenericManagementPageProps<any>) => {
 
   const { data: fetchedData, loading, error: fetchError } = useRealtimeCollection<any>(collectionPath);
   const { deleteDocument, updateDocument, addDocument, bulkAddDocuments, loading: opLoading, error: opError, success: opSuccess } = useRealtimeOperations<any>(collectionPath);
+  const { logEdit } = useSimpleHistory(); // Hook para registrar edições
 
   const [filteredData, setFilteredData] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,8 +57,9 @@ const GenericManagementPage = (props: GenericManagementPageProps<any>) => {
     setFilteredData(filtered);
   };
 
-  const handleItemSaved = () => {
+  const handleItemSaved = async () => {
     console.log(`Item em ${collectionPath} salvo com sucesso!`);
+    await logEdit(); // Registra a edição no histórico
     setIsModalOpen(false);
     setItemToEdit(null);
   };
@@ -74,21 +78,22 @@ const GenericManagementPage = (props: GenericManagementPageProps<any>) => {
     if (window.confirm("Tem certeza que deseja excluir este item?")) {
       await deleteDocument(itemId);
       if (opSuccess) {
-          console.log("Item excluído com sucesso!");
+        console.log("Item excluído com sucesso!");
+        await logEdit(); // Registra a edição no histórico
       } else if (opError) {
-          console.error("Erro ao excluir item:", opError);
+        console.error("Erro ao excluir item:", opError);
       }
     }
   };
   
-  const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCsvUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       Papa.parse(file, {
         header: true,
         dynamicTyping: true,
         skipEmptyLines: true,
-        complete: (results) => {
+        complete: async (results) => {
           const data = results.data as any[]; 
           if (data.length > 0) {
             console.log("Dados do CSV parseados:", data);
@@ -96,7 +101,10 @@ const GenericManagementPage = (props: GenericManagementPageProps<any>) => {
               const { id, ...rest } = item;
               return rest;
             });
-            bulkAddDocuments(dataToSave);
+            await bulkAddDocuments(dataToSave);
+            if (opSuccess) {
+              await logEdit(); // Registra a edição no histórico
+            }
           }
         },
       });

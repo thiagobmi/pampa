@@ -1,4 +1,4 @@
-// src/App.tsx
+// src/App.tsx - Versão atualizada com rota para histórico simples
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,7 +8,7 @@ import { managementRoutes, ManagementRouteConfig } from "./config/managementRout
 import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
 import HomeDashboard from "./pages/HomeDashboard";
-import History from "./pages/History";
+import SimpleHistory from "./pages/SimpleHistory"; // Nova página de histórico
 import Reports from "./pages/Reports";
 import GenericManagement from "./pages/GenericManagementPage";
 import Login from "./pages/Login";
@@ -49,7 +49,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/calendar" element={<RequireAuth><Calendar /></RequireAuth>} />
             <Route path="/homedashboard" element={<RequireAuth><HomeDashboard /></RequireAuth>} />
-            <Route path="/history" element={<RequireAuth><History /></RequireAuth>} />
+            <Route path="/history" element={<RequireAuth><SimpleHistory /></RequireAuth>} />
             <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
             <Route path="/reports" element={<RequireAuth><Reports /></RequireAuth>} />
             <Route path="/admin" element={<RequireAdmin><AdminUsers /></RequireAdmin>} />
@@ -76,7 +76,6 @@ const App = () => (
       </TooltipProvider>
     </QueryClientProvider>
   </AuthProvider>
-  
 );
 
 export default App;
