@@ -1,3 +1,4 @@
+// src/components/Header.tsx
 import logo from '../assets/logo.png';
 import { FiClock } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
@@ -22,8 +23,14 @@ const Header = () => {
             Calendário
           </Link>
 
-          {/* aqui vcs podem adicionar mais link, como eu fiz o History e o HomeDashboard */}
-          {["Relatórios", "Configuração", "Contato"].map((item) => (
+          <Link
+            to="/reports"
+            className="relative after:content-[''] after:absolute after:left-0 after:bottom-[0.1em] after:h-[1px] after:w-0 after:bg-[#49C17B] after:transition-all after:duration-200 hover:after:w-full"
+          >
+            Relatórios
+          </Link>
+
+          {["Configuração", "Contato"].map((item) => (
             <a
               key={item}
               href={`#${item.toLowerCase()}`}

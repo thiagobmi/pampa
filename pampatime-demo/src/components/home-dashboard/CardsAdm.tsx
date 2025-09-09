@@ -1,3 +1,4 @@
+// src/components/home-dashboard/CardsAdm.tsx
 import useRealtimeCollection from '@/hooks/useRealtimeCollection';
 import { TeacherItem, BookingItem, CourseItem, SubjectItem, TurmaItem } from '@/types/management';
 import { Link } from 'react-router-dom';
@@ -9,6 +10,7 @@ import {
     FiBook,
     FiAward,
     FiUserCheck,
+    FiFileText,
 } from 'react-icons/fi';
 
 const CardsAdm = () => { 
@@ -32,16 +34,30 @@ const CardsAdm = () => {
                     </p>
                 </div>
 
-                <div className="bg-white rounded-xl border border-black/30 shadow-md p-6 pt-10 relative flex flex-col gap-2 border-t-4 border-pink-400 min-w-[685px] w-[350px]">
-                    <FiClock className="absolute top-4 right-4 text-2xl text-black" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-1">Horários</h3>
-                    <p className="text-gray-600 mb-4">Organize e Visualize os horários</p>
-                    <Link
-                        to="/semestres"
-                        className="border border-black px-4 py-2 rounded-full font-medium hover:bg-green-500 hover:text-white transition text-center"
-                    >
-                        Ver Detalhes
-                    </Link>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-[400px]">
+                    <div className="bg-white rounded-xl border border-black/30 shadow-md p-6 relative flex flex-col gap-2 border-t-4 border-pink-400">
+                        <FiClock className="absolute top-4 right-4 text-2xl text-black" />
+                        <h3 className="text-xl font-semibold text-gray-900 mb-1">Horários</h3>
+                        <p className="text-gray-600 mb-4">Organize e Visualize os horários</p>
+                        <Link
+                            to="/calendar"
+                            className="border border-black px-4 py-2 rounded-full font-medium hover:bg-green-500 hover:text-white transition text-center"
+                        >
+                            Ver Calendário
+                        </Link>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-black/30 shadow-md p-6 relative flex flex-col gap-2 border-t-4 border-blue-400">
+                        <FiFileText className="absolute top-4 right-4 text-2xl text-black" />
+                        <h3 className="text-xl font-semibold text-gray-900 mb-1">Relatórios</h3>
+                        <p className="text-gray-600 mb-4">Gere relatórios em HTML</p>
+                        <Link
+                            to="/reports"
+                            className="border border-black px-4 py-2 rounded-full font-medium hover:bg-green-500 hover:text-white transition text-center"
+                        >
+                            Gerar Relatórios
+                        </Link>
+                    </div>
                 </div>
 
             </div>
@@ -121,6 +137,15 @@ const CardsAdm = () => {
                                 <strong className="text-gray-900">Visualize os Horários</strong>
                                 <p className="text-gray-600 text-sm">
                                     Consulte os horários alocados para disciplinas e professores.
+                                </p>
+                            </div>
+                        </li>
+                        <li className="flex gap-4">
+                            <FiFileText className="text-2xl text-black mt-1" />
+                            <div>
+                                <strong className="text-gray-900">Gere Relatórios</strong>
+                                <p className="text-gray-600 text-sm">
+                                    Crie relatórios HTML personalizados dos horários.
                                 </p>
                             </div>
                         </li>
