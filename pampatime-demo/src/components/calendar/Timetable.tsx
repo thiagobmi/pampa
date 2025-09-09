@@ -64,7 +64,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
           conflictInfo: conflicts.conflictDetails.get(event.id) || []
         };
       }
-      
+
       return applyEventColors(event);
     });
   }, [filterManager.filteredEvents, conflicts]);
@@ -78,16 +78,16 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
   const handleEventClick = (info: any) => {
     const eventData = createEventDataFromFullCalendar(info.event);
     setSelectedEventId(eventData.id);
-    
+
     if (eventData.id && conflicts?.conflictDetails.has(eventData.id)) {
       const eventConflicts = conflicts.conflictDetails.get(eventData.id) || [];
       const conflictDesc = ConflictService.getConflictDescription(eventConflicts);
-      
+
       if (conflictDesc) {
         const conflictingEvents = ConflictService.getConflictingEvents(eventData.id, events, conflicts);
-        
+
         let message = `⚠️ CONFLITO DETECTADO:\n\n${conflictDesc}`;
-        
+
         if (conflictingEvents.length > 0) {
           message += '\n\nEventos em conflito:';
           conflictingEvents.forEach((conflictEvent, index) => {
@@ -98,7 +98,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
         }
       }
     }
-    
+
     onEventClick?.(eventData);
   };
 
@@ -109,9 +109,9 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
       start: info.event.start,
       end: info.event.end
     });
-    
+
     onEventChange?.(recoloredEvent);
-    
+
     if (selectedEventId === info.event.id && onEventChange) {
       setTimeout(() => onEventChange(recoloredEvent), 0);
     }
@@ -124,9 +124,9 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
       start: info.event.start,
       end: info.event.end
     });
-    
+
     onEventChange?.(recoloredEvent);
-    
+
     if (selectedEventId === info.event.id && onEventChange) {
       setTimeout(() => onEventChange(recoloredEvent), 0);
     }
@@ -135,14 +135,14 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
   // Parte 4: handleEventReceive e Utility Functions
   const handleEventReceive = (info: any) => {
     console.log('Event received:', info.event);
-    
+
     const eventData = {
       title: info.event.title,
       start: info.event.start,
-      end: info.event.end || new Date(info.event.start.getTime() + 60*60*1000),
+      end: info.event.end || new Date(info.event.start.getTime() + 60 * 60 * 1000),
       extendedProps: info.event.extendedProps || {}
     };
-    
+
     const newCalendarEvent: CalendarEvent = {
       id: `event-${Date.now()}-${Math.random()}`,
       title: eventData.title,
@@ -157,14 +157,14 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
     };
 
     const coloredEvent = applyEventColors(newCalendarEvent);
-    
+
     console.log('Adding new event:', coloredEvent);
-    
+
     info.event.setProp('backgroundColor', coloredEvent.backgroundColor);
     info.event.setProp('borderColor', coloredEvent.borderColor);
     info.event.setProp('textColor', coloredEvent.textColor);
     info.event.setProp('id', coloredEvent.id);
-    
+
     const updatedEvents = [...events, coloredEvent];
     onEventsChange?.(updatedEvents);
 
@@ -194,7 +194,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
   // Parte 5: Função de Navegação e Grupos de Conflito
   const navigateToEvent = useCallback((event: CalendarEvent, conflictType?: 'sala' | 'professor' | 'turma') => {
     filterManager.clearAllFilters();
-    
+
     if (conflictType) {
       switch (conflictType) {
         case 'sala':
@@ -228,7 +228,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
         filterManager.setActiveFilterType('turma');
       }
     }
-    
+
     setTimeout(() => {
       setSelectedEventId(event.id);
       onEventClick?.(event);
@@ -238,43 +238,43 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
   // Obter eventos conflitantes agrupados por tipo
   const conflictGroups = React.useMemo(() => {
     if (!conflicts) return { sala: [], professor: [], turma: [] };
-    
+
     const groups: {
       sala: { value: string; events: CalendarEvent[] }[];
       professor: { value: string; events: CalendarEvent[] }[];
       turma: { value: string; events: CalendarEvent[] }[];
     } = { sala: [], professor: [], turma: [] };
-    
+
     // Agrupar por sala
     conflictSummary.sala.forEach(sala => {
-      const eventsInSala = events.filter(event => 
+      const eventsInSala = events.filter(event =>
         event.room === sala && event.id && conflicts.conflictIds.has(event.id)
       );
       if (eventsInSala.length > 0) {
         groups.sala.push({ value: sala, events: eventsInSala });
       }
     });
-    
+
     // Agrupar por professor
     conflictSummary.professor.forEach(professor => {
-      const eventsByProfessor = events.filter(event => 
+      const eventsByProfessor = events.filter(event =>
         event.professor === professor && event.id && conflicts.conflictIds.has(event.id)
       );
       if (eventsByProfessor.length > 0) {
         groups.professor.push({ value: professor, events: eventsByProfessor });
       }
     });
-    
+
     // Agrupar por turma
     conflictSummary.turma?.forEach(turma => {
-      const eventsByTurma = events.filter(event => 
+      const eventsByTurma = events.filter(event =>
         event.class === turma && event.id && conflicts.conflictIds.has(event.id)
       );
       if (eventsByTurma.length > 0) {
         groups.turma.push({ value: turma, events: eventsByTurma });
       }
     });
-    
+
     return groups;
   }, [conflicts, conflictSummary, events]);
 
@@ -292,6 +292,11 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
   const selectFromModal = (value: string) => {
     filterManager.setFilter(filterManager.activeFilterType, value);
     closeSearchModal();
+  };
+
+  const truncateText = (text: string, maxLength: number = 20): string => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
   };
 
   // Filter options for modal
@@ -316,7 +321,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
     deleteEvent: (eventId: string | number) => {
       const updatedEvents = events.filter(e => e.id !== eventId);
       onEventsChange?.(updatedEvents);
-      
+
       if (selectedEventId === eventId) {
         setSelectedEventId(null);
       }
@@ -377,37 +382,38 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
           }
         `
       }} />
-      
+
       <div className="w-full h-full flex flex-col border border-gray-200 rounded-lg shadow-sm bg-white">
         {/* Header with navigation and filters */}
         <div className="flex items-center justify-between p-2 border-b">
           {/* Filter Navigation */}
           <div className="flex items-center space-x-2">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-8 w-8"
               onClick={filterManager.navigatePrevious}
               disabled={currentFilterInfo.total === 0}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            
+
             <div className="min-w-[180px] text-center relative">
               <div className="text-xs text-gray-500 uppercase tracking-wider">
                 {filterManager.activeFilterType.charAt(0).toUpperCase() + filterManager.activeFilterType.slice(1)}
               </div>
-              <div 
+              <div
                 className="font-medium text-sm cursor-pointer hover:bg-gray-100 px-2 py-1 rounded transition-colors"
                 onClick={openSearchModal}
-                title="Clique para pesquisar"
+                title={`${currentFilterInfo.displayText} - Clique para pesquisar`}
               >
-                {currentFilterInfo.displayText}
+                {/* APLICAR TRUNCAMENTO AQUI */}
+                {truncateText(currentFilterInfo.displayText, 25)}
               </div>
-              
+
               {/* Search Modal */}
               {showSearchModal && (
-                <div 
+                <div
                   id="search-modal"
                   className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-80 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
                 >
@@ -440,17 +446,19 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                         </div>
                       </div>
                     )}
-                    
+
                     {filteredModalOptions.length > 0 ? (
                       filteredModalOptions.map((option, index) => (
                         <div
                           key={index}
-                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 ${
-                            currentFilterInfo.value === option ? 'bg-blue-100 text-blue-800' : ''
-                          }`}
+                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 ${currentFilterInfo.value === option ? 'bg-blue-100 text-blue-800' : ''
+                            }`}
                           onClick={() => selectFromModal(option)}
                         >
-                          <div className="font-medium">{option}</div>
+                          <div className="font-medium" title={option}>
+                            {/* APLICAR TRUNCAMENTO NAS OPÇÕES TAMBÉM */}
+                            {truncateText(option, 35)}
+                          </div>
                         </div>
                       ))
                     ) : (
@@ -463,10 +471,10 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                 </div>
               )}
             </div>
-            
-            <Button 
-              variant="ghost" 
-              size="icon" 
+
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-8 w-8"
               onClick={filterManager.navigateNext}
               disabled={currentFilterInfo.total === 0}
@@ -474,26 +482,25 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          
+
           {/* Filter Type Buttons */}
           <div className="flex items-center divide-x divide-gray-200 rounded-md overflow-hidden border border-gray-300">
             {(['professor', 'turma', 'sala'] as FilterType[]).map((filterType) => (
               <Button
                 key={filterType}
                 variant="outline"
-                className={`text-sm h-8 rounded-none border-none px-4 ${
-                  filterManager.activeFilterType === filterType
-                    ? 'bg-pampa-green text-white' 
-                    : 'bg-white hover:bg-gray-50'
-                }`}
+                className={`text-sm h-8 rounded-none border-none px-4 ${filterManager.activeFilterType === filterType
+                  ? 'bg-pampa-green text-white'
+                  : 'bg-white hover:bg-gray-50'
+                  }`}
                 onClick={() => filterManager.setActiveFilterType(filterType)}
               >
                 {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
               </Button>
             ))}
           </div>
-          
-          {/* Search and Clear */}
+
+          {/* Search and Clear - SEÇÃO MELHORADA */}
           <div className="flex items-center space-x-2">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-500" />
@@ -505,9 +512,9 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                 className="pl-7 pr-8 py-1 w-full border rounded-md text-xs min-w-[140px]"
               />
               {filterManager.searchTerm && (
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-1"
                   onClick={() => filterManager.setSearchTerm('')}
                 >
@@ -515,20 +522,25 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                 </Button>
               )}
             </div>
-            
-            {filterManager.hasActiveFilters && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={filterManager.clearAllFilters}
-                className="text-xs h-8 px-2"
-              >
-                Limpar Filtros
-              </Button>
-            )}
+
+            {/* BOTÃO LIMPAR FILTROS SEMPRE VISÍVEL */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={filterManager.clearAllFilters}
+              disabled={!filterManager.hasActiveFilters}
+              className={`text-xs h-8 px-2 transition-all ${filterManager.hasActiveFilters
+                ? 'text-gray-900 hover:bg-red-50 hover:border-red-300 hover:text-red-700'
+                : 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                }`}
+              title={filterManager.hasActiveFilters ? 'Limpar todos os filtros' : 'Nenhum filtro aplicado'}
+            >
+              Limpar Filtros
+            </Button>
           </div>
         </div>
         {/* Status bar */}
+
         {(filterManager.hasActiveFilters || conflictSummary.total > 0) && (
           <div className="px-2 py-1 bg-blue-50 border-b border-blue-200 text-xs">
             <div className="flex items-center justify-between">
@@ -536,7 +548,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                 <span className="text-blue-700">
                   Exibindo {filterManager.filteredEvents.length} de {events.length} eventos
                 </span>
-                
+
                 {conflictSummary.total > 0 && (
                   <div className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
                     <div className="flex items-center justify-between">
@@ -544,12 +556,11 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                         <span>⚠️ {conflictSummary.total} eventos com conflito</span>
                         <div className="text-xs opacity-75 flex items-center space-x-1">
                           {conflictSummary.sala.length > 0 && (
-                            <span 
-                              className={`px-1 rounded mr-1 cursor-pointer transition-colors ${
-                                selectedConflictType === 'sala' && showConflictPanel
-                                  ? 'bg-red-400 text-white shadow-sm' 
+                            <span
+                              className={`px-1 rounded mr-1 cursor-pointer transition-colors ${selectedConflictType === 'sala' && showConflictPanel
+                                  ? 'bg-red-400 text-white shadow-sm'
                                   : 'bg-red-200 hover:bg-red-300'
-                              }`}
+                                }`}
                               title={`Salas em conflito: ${conflictSummary.sala.join(', ')} - Clique para ver detalhes`}
                               onClick={() => {
                                 setSelectedConflictType('sala');
@@ -562,12 +573,11 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                             </span>
                           )}
                           {conflictSummary.professor.length > 0 && (
-                            <span 
-                              className={`px-1 rounded mr-1 cursor-pointer transition-colors ${
-                                selectedConflictType === 'professor' && showConflictPanel
-                                  ? 'bg-red-400 text-white shadow-sm' 
+                            <span
+                              className={`px-1 rounded mr-1 cursor-pointer transition-colors ${selectedConflictType === 'professor' && showConflictPanel
+                                  ? 'bg-red-400 text-white shadow-sm'
                                   : 'bg-red-200 hover:bg-red-300'
-                              }`}
+                                }`}
                               title={`Professores em conflito: ${conflictSummary.professor.join(', ')} - Clique para ver detalhes`}
                               onClick={() => {
                                 setSelectedConflictType('professor');
@@ -580,12 +590,11 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                             </span>
                           )}
                           {conflictSummary.turma && conflictSummary.turma.length > 0 && (
-                            <span 
-                              className={`px-1 rounded cursor-pointer transition-colors ${
-                                selectedConflictType === 'turma' && showConflictPanel
-                                  ? 'bg-red-400 text-white shadow-sm' 
+                            <span
+                              className={`px-1 rounded cursor-pointer transition-colors ${selectedConflictType === 'turma' && showConflictPanel
+                                  ? 'bg-red-400 text-white shadow-sm'
                                   : 'bg-red-200 hover:bg-red-300'
-                              }`}
+                                }`}
                               title={`Turmas em conflito: ${conflictSummary.turma.join(', ')} - Clique para ver detalhes`}
                               onClick={() => {
                                 setSelectedConflictType('turma');
@@ -611,44 +620,53 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                   </div>
                 )}
               </div>
-              {/* Active filters display */}
+
+              {/* Active filters display - MELHORADO COM TRUNCAMENTO */}
               <div className="flex items-center space-x-2">
                 {filterManager.filters.professor && (
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs flex items-center">
-                    Prof: {filterManager.filters.professor}
-                    <X 
-                      size={12} 
-                      className="ml-1 cursor-pointer hover:bg-blue-200 rounded" 
+                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs flex items-center max-w-32">
+                    <span className="truncate" title={`Professor: ${filterManager.filters.professor}`}>
+                      Prof: {truncateText(filterManager.filters.professor, 15)}
+                    </span>
+                    <X
+                      size={12}
+                      className="ml-1 cursor-pointer hover:bg-blue-200 rounded flex-shrink-0"
                       onClick={() => filterManager.clearFilter('professor')}
                     />
                   </span>
                 )}
                 {filterManager.filters.sala && (
-                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs flex items-center">
-                    Sala: {filterManager.filters.sala}
-                    <X 
-                      size={12} 
-                      className="ml-1 cursor-pointer hover:bg-green-200 rounded" 
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs flex items-center max-w-24">
+                    <span className="truncate" title={`Sala: ${filterManager.filters.sala}`}>
+                      Sala: {truncateText(filterManager.filters.sala, 10)}
+                    </span>
+                    <X
+                      size={12}
+                      className="ml-1 cursor-pointer hover:bg-green-200 rounded flex-shrink-0"
                       onClick={() => filterManager.clearFilter('sala')}
                     />
                   </span>
                 )}
                 {filterManager.filters.turma && (
-                  <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs flex items-center">
-                    Turma: {filterManager.filters.turma}
-                    <X 
-                      size={12} 
-                      className="ml-1 cursor-pointer hover:bg-purple-200 rounded" 
+                  <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs flex items-center max-w-28">
+                    <span className="truncate" title={`Turma: ${filterManager.filters.turma}`}>
+                      Turma: {truncateText(filterManager.filters.turma, 12)}
+                    </span>
+                    <X
+                      size={12}
+                      className="ml-1 cursor-pointer hover:bg-purple-200 rounded flex-shrink-0"
                       onClick={() => filterManager.clearFilter('turma')}
                     />
                   </span>
                 )}
                 {filterManager.searchTerm && (
-                  <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs flex items-center">
-                    "{filterManager.searchTerm}"
-                    <X 
-                      size={12} 
-                      className="ml-1 cursor-pointer hover:bg-gray-200 rounded" 
+                  <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs flex items-center max-w-32">
+                    <span className="truncate" title={`Busca: ${filterManager.searchTerm}`}>
+                      "{truncateText(filterManager.searchTerm, 15)}"
+                    </span>
+                    <X
+                      size={12}
+                      className="ml-1 cursor-pointer hover:bg-gray-200 rounded flex-shrink-0"
                       onClick={() => filterManager.setSearchTerm('')}
                     />
                   </span>
@@ -666,9 +684,9 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                 Detalhes dos Conflitos
                 {selectedConflictType && (
                   <span className="ml-2 text-sm font-normal">
-                    ({selectedConflictType === 'sala' ? '🏢 Salas' : 
-                      selectedConflictType === 'professor' ? '👨‍🏫 Professores' : 
-                      '🎓 Turmas'})
+                    ({selectedConflictType === 'sala' ? '🏢 Salas' :
+                      selectedConflictType === 'professor' ? '👨‍🏫 Professores' :
+                        '🎓 Turmas'})
                   </span>
                 )}
               </h4>
@@ -681,7 +699,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                 <X size={12} />
               </Button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {/* Conflitos de Sala */}
               {(!selectedConflictType || selectedConflictType === 'sala') && conflictGroups.sala.length > 0 && (
@@ -696,8 +714,8 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                         {group.events.map((event, eventIndex) => {
                           const time = event.start ? new Date(event.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
                           return (
-                            <div 
-                              key={eventIndex} 
+                            <div
+                              key={eventIndex}
                               className="pl-2 text-gray-700 hover:text-red-700 cursor-pointer hover:bg-red-50 rounded p-1"
                               onClick={() => navigateToEvent(event, 'sala')}
                               title="Clique para navegar até este evento"
@@ -724,8 +742,8 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                         {group.events.map((event, eventIndex) => {
                           const time = event.start ? new Date(event.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
                           return (
-                            <div 
-                              key={eventIndex} 
+                            <div
+                              key={eventIndex}
                               className="pl-2 text-gray-700 hover:text-red-700 cursor-pointer hover:bg-red-50 rounded p-1"
                               onClick={() => navigateToEvent(event, 'professor')}
                               title="Clique para navegar até este evento"
@@ -753,8 +771,8 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                         {group.events.map((event, eventIndex) => {
                           const time = event.start ? new Date(event.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
                           return (
-                            <div 
-                              key={eventIndex} 
+                            <div
+                              key={eventIndex}
                               className="pl-2 text-gray-700 hover:text-red-700 cursor-pointer hover:bg-red-50 rounded p-1"
                               onClick={() => navigateToEvent(event, 'turma')}
                               title="Clique para navegar até este evento"
@@ -769,7 +787,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
                 </div>
               )}
             </div>
-            
+
             <div className="mt-3 text-xs text-red-600 text-center">
               💡 Clique em qualquer evento acima para navegar até ele no calendário
             </div>
@@ -778,7 +796,7 @@ const Timetable = forwardRef<TimetableRef, TimetableProps>(({
         {/* Calendar */}
         <div className="flex-1 min-h-0 overflow-hidden">
           <div className="h-full">
-            <EventCalendar 
+            <EventCalendar
               events={styledEvents}
               onEventClick={handleEventClick}
               onEventDrop={handleEventDrop}
