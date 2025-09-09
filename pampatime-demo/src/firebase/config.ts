@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -15,8 +15,18 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-export const auth = getAuth(app);    
+export const auth = getAuth(app);
 export const storage = getStorage(app);
-export const rtdb = getDatabase(app); 
+export const rtdb = getDatabase(app);
+
+// Secondary app (lazy) para criação de usuários sem trocar sessão atual
+let secondaryAuthInstance: ReturnType<typeof getAuth> | null = null;
+export function getSecondaryAuth() {
+  if (!secondaryAuthInstance) {
+    const secondary = initializeApp(firebaseConfig, 'secondary');
+    secondaryAuthInstance = getAuth(secondary);
+  }
+  return secondaryAuthInstance;
+}
 
 export { app, database };

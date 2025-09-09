@@ -99,4 +99,8 @@ export interface HistoryLogItem extends ManagedItem {
   author: string;
   action: string;
   timestamp: number; 
+  eventId?: string;
+  changed?: Record<string, { before: any; after: any }>;
+  fullAfter?: any;
+  restoredFromLogId?: string;
 }
